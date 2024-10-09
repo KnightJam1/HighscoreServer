@@ -33,7 +33,7 @@ class Program
             }
 
             // Do console commands. Switch statement looks at first word so arguments can be passed afterwards.
-            var commandParts = command.Trim().ToLower().Split(' ', 2);
+            var commandParts = command.Trim().ToLower().Split(' ', 3);
             switch (commandParts[0])
             {
                 case "shutdown":
@@ -52,19 +52,23 @@ class Program
                     {
                         AskToSaveAndLoad(commandParts[1]);
                     }
+                    if (commandParts.Length == 3)
+                    {
+                        Console.WriteLine("Too many arguments.");
+                    }
                     else
                     {
                         Console.WriteLine("Please specify a file name.");
                     }
                     break;
                 case "create":
-                    if (commandParts.Length == 2)
+                    if (commandParts.Length == 3)
                     {
-                        CreateNewLeaderboard(commandParts[1]);
+                        CreateNewLeaderboard(commandParts[1], int.Parse(commandParts[2]));
                     }
                     else
                     {
-                        Console.WriteLine("Please provide the leaderboard details.");
+                        Console.WriteLine("Please provide the leaderboard details. Example: create leaderboardName 3");
                     }
                     break;
                 default:
@@ -172,30 +176,34 @@ class Program
         LoadData(filePath);
     }
 
-    static void CreateNewLeaderboard(string details)
+    static void CreateNewLeaderboard(string name, int length)
     {
-        var parts = details.Split(' ');
-        if (parts.Length < 3)
-        {
-            Console.WriteLine("Invalid format. Example: create leaderboardName 3 name score date");
-            return;
-        }
-
-        string name = parts[0];
-        int length;
-        if (!int.TryParse(parts[1], out length) || parts.Length != length + 2)
-        {
-            Console.WriteLine("Invalid format length or types mismatch. Example: create leaderboardName 3 name score date");
-            return;
-        }
-
         List<string> format = new List<string>();
-        for (int i = 2; i < parts.Length; i++)
+        List<string> dataTypeNames = new List<string>();
+
+        for (int i = 0; i < length; i++)
         {
-            format.Add(parts[i]);
+            Console.WriteLine($"Enter type for item {i + 1} (string, int, datetime):");
+            string typeInput = Console.ReadLine();
+
+            switch (typeInput.ToLower())
+            {
+                case "string":
+                case "int":
+                case "datetime":
+                    dataTypeNames.Add(typeInput.ToLower());
+                    break;
+                default:
+                    Console.WriteLine($"Unknown type '{typeInput}'. Supported types are: string, int, datetime.");
+                    return;
+            }
+
+            Console.WriteLine($"Enter name for item {i + 1}:");
+            string nameInput = Console.ReadLine();
+            format.Add(nameInput);
         }
 
-        data.AddLeaderboard(name, format);
+        data.AddLeaderboard(name, format, dataTypeNames);
         Console.WriteLine($"Leaderboard '{name}' created with format: {string.Join(", ", format)}");
     }
 }

@@ -5,11 +5,11 @@ public class Game
 {
     public Dictionary<string, Leaderboard> Leaderboards { get; set; } = new Dictionary<string, Leaderboard>();
 
-    public void AddLeaderboard(string name, List<string> format)
+    public void AddLeaderboard(string name, List<string> format, List<string> dataTypeNames)
     {
         if (!Leaderboards.ContainsKey(name))
         {
-            Leaderboards[name] = new Leaderboard(format);
+            Leaderboards[name] = new Leaderboard(format, dataTypeNames);
         }
     }
 
