@@ -57,6 +57,16 @@ class Program
                         Console.WriteLine("Please specify a file name.");
                     }
                     break;
+                case "create":
+                    if (commandParts.Length == 2)
+                    {
+                        CreateNewLeaderboard(commandParts[1]);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Please provide the leaderboard details.");
+                    }
+                    break;
                 default:
                     Console.WriteLine("Unknown command. Type help to see possible commands.");
                     break;
@@ -94,21 +104,39 @@ class Program
     {
         if (context.Request.HttpMethod == "POST")
         {
-            using (var reader = new System.IO.StreamReader(context.Request.InputStream))
+            using (var reader = new StreamReader(context.Request.InputStream))
             {
                 string requestBody = await reader.ReadToEndAsync();
-                var newEntry = JsonSerializer.Deserialize<KeyValuePair<string, string[]>>(requestBody);
-                data.AddToLeaderboard(newEntry.Key, newEntry.Value);
+                var entry = JsonSerializer.Deserialize<KeyValuePair<string, string[]>>(requestBody);
+
+                if (data.AddEntry(entry.Key, entry.Value, out string message))
+                {
+                    context.Response.StatusCode = (int)HttpStatusCode.OK;
+                    var response = JsonSerializer.Serialize(new { Message = message });
+                    byte[] buffer = System.Text.Encoding.UTF8.GetBytes(response);
+                    context.Response.ContentLength64 = buffer.Length;
+                    await context.Response.OutputStream.WriteAsync(buffer, 0, buffer.Length);
+                }
+                else
+                {
+                    context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    var response = JsonSerializer.Serialize(new { Error = message });
+                    byte[] buffer = System.Text.Encoding.UTF8.GetBytes(response);
+                    context.Response.ContentLength64 = buffer.Length;
+                    await context.Response.OutputStream.WriteAsync(buffer, 0, buffer.Length);
+                }
             }
         }
-
-        string responseString = JsonSerializer.Serialize(data);
-        byte[] buffer = System.Text.Encoding.UTF8.GetBytes(responseString);
-        context.Response.ContentLength64 = buffer.Length;
-
-        using (var output = context.Response.OutputStream)
+        else if (context.Request.HttpMethod == "GET")
         {
-            await output.WriteAsync(buffer, 0, buffer.Length);
+            var responseString = JsonSerializer.Serialize(data.GetFormats());
+            byte[] buffer = System.Text.Encoding.UTF8.GetBytes(responseString);
+            context.Response.ContentLength64 = buffer.Length;
+
+            using (var output = context.Response.OutputStream)
+            {
+                await output.WriteAsync(buffer, 0, buffer.Length);
+            }
         }
     }
 
@@ -142,6 +170,33 @@ class Program
             SaveData(defaultFilePath);
         }
         LoadData(filePath);
+    }
+
+    static void CreateNewLeaderboard(string details)
+    {
+        var parts = details.Split(' ');
+        if (parts.Length < 3)
+        {
+            Console.WriteLine("Invalid format. Example: create leaderboardName 3 name score date");
+            return;
+        }
+
+        string name = parts[0];
+        int length;
+        if (!int.TryParse(parts[1], out length) || parts.Length != length + 2)
+        {
+            Console.WriteLine("Invalid format length or types mismatch. Example: create leaderboardName 3 name score date");
+            return;
+        }
+
+        List<string> format = new List<string>();
+        for (int i = 2; i < parts.Length; i++)
+        {
+            format.Add(parts[i]);
+        }
+
+        data.AddLeaderboard(name, format);
+        Console.WriteLine($"Leaderboard '{name}' created with format: {string.Join(", ", format)}");
     }
 }
     
