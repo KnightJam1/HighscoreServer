@@ -9,7 +9,7 @@ class Program
 {
     static HttpListener listener = new HttpListener();
     static CancellationTokenSource cts = new CancellationTokenSource();
-    static Dictionary<string, int> data = new Dictionary<string, int>();
+    static List<string[]> data = new List<string[]>();
     static string defaultFilePath = "data.json";
 
     static async Task Main()
@@ -18,7 +18,7 @@ class Program
         LoadData(defaultFilePath);
         listener.Prefixes.Add("http://localhost:8080/");
         listener.Start();
-        Console.WriteLine("Listening... Type 'shutdown' to stop the server.");
+        Console.WriteLine("Now Listening...\nType 'shutdown' to stop the server. Type 'help' to see a list of commands");
 
         // Start listening for HTTP requests
         var listenTask = ListenAsync();
@@ -32,7 +32,9 @@ class Program
                 continue;
             }
 
-            switch (command.Trim().ToLower())
+            // Do console commands. Switch statement looks at first word so arguments can be passed afterwards.
+            var commandParts = command.Trim().ToLower().Split(' ', 2);
+            switch (commandParts[0])
             {
                 case "shutdown":
                     cts.Cancel();
@@ -43,7 +45,7 @@ class Program
                     Console.WriteLine("Server is running...");
                     break;
                 case "help":
-                    Console.WriteLine("Type shutdown to close the server\nType status to see the status of the server.");
+                    Console.WriteLine("Console commands:\n\tshutdown\t\t- close the server.\n\tstatus\t\t\t- see the status of the server.\n\tload filename.json\t- load the specified file.");
                     break;
                 case "load":
                     if (commandParts.Length == 2)
@@ -95,11 +97,8 @@ class Program
             using (var reader = new System.IO.StreamReader(context.Request.InputStream))
             {
                 string requestBody = await reader.ReadToEndAsync();
-                var newEntry = JsonSerializer.Deserialize<Dictionary<string, int>>(requestBody);
-                foreach (var item in newEntry)
-                {
-                    data[item.Key] = item.Value;
-                }
+                var newEntry = JsonSerializer.Deserialize<string[][]>(requestBody);
+                data.AddRange(newEntry);
             }
         }
 
@@ -125,7 +124,7 @@ class Program
         if (File.Exists(filePath))
         {
             var jsonData = File.ReadAllText(filePath);
-            data = JsonSerializer.Deserialize<Dictionary<string, int>>(jsonData);
+            data = JsonSerializer.Deserialize<List<string[]>>(jsonData);
             Console.WriteLine($"Data loaded from {filePath}.");
         }
         else
