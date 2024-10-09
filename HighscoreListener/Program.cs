@@ -9,7 +9,7 @@ class Program
 {
     static HttpListener listener = new HttpListener();
     static CancellationTokenSource cts = new CancellationTokenSource();
-    static List<string[]> data = new List<string[]>();
+    static Game data = new Game();
     static string defaultFilePath = "data.json";
 
     static async Task Main()
@@ -97,8 +97,8 @@ class Program
             using (var reader = new System.IO.StreamReader(context.Request.InputStream))
             {
                 string requestBody = await reader.ReadToEndAsync();
-                var newEntry = JsonSerializer.Deserialize<string[][]>(requestBody);
-                data.AddRange(newEntry);
+                var newEntry = JsonSerializer.Deserialize<KeyValuePair<string, string[]>>(requestBody);
+                data.AddToLeaderboard(newEntry.Key, newEntry.Value);
             }
         }
 
@@ -124,7 +124,7 @@ class Program
         if (File.Exists(filePath))
         {
             var jsonData = File.ReadAllText(filePath);
-            data = JsonSerializer.Deserialize<List<string[]>>(jsonData);
+            data = JsonSerializer.Deserialize<Game>(jsonData);
             Console.WriteLine($"Data loaded from {filePath}.");
         }
         else

@@ -12,14 +12,11 @@ class Program
         try
         {
             // Add entries
-            var newEntry = new string[][]
-            {
-                new string[] { "Alpha", "1000", "2024-10-01" },
-                new string[] { "Bravo", "1500", "2024-10-02" },
-                new string[] { "Charlie", "2000", "2024-10-03" },
-                new string[] { "Delta", "2500", "2024-10-04" }
-            };
-            var jsonContent = new StringContent(JsonSerializer.Serialize(newEntry), Encoding.UTF8, "application/json");
+            string key = "gamemode2";
+            string[] value = new string[] { "Josh", "1000", "2024-10-01" };
+
+            KeyValuePair<string, string[]> entry = new KeyValuePair<string, string[]>(key, value);
+            var jsonContent = new StringContent(JsonSerializer.Serialize(entry), Encoding.UTF8, "application/json");
             HttpResponseMessage postResponse = await client.PostAsync("http://localhost:8080/", jsonContent);
             postResponse.EnsureSuccessStatusCode();
 
