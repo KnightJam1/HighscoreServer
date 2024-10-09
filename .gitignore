@@ -1,0 +1,19 @@
+# Ignore .NET files
+bin/
+obj/
+.vscode/
+
+# Ignore user-specific files
+*.user
+*.userosscache
+*.suo
+
+# Ignore build results
+*.exe
+*.dll
+*.pdb
+*.cache
+*.log
+*.msi
+*.out
+*.plist
