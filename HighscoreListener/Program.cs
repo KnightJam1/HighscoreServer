@@ -4,22 +4,26 @@ using System.Net;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using SaveLoadSystem;
 
 class Program
 {
     static HttpListener listener = new HttpListener();
     static CancellationTokenSource cts = new CancellationTokenSource();
     static Game data = new Game();
-    static string defaultFilePath = "data.json";
+    static string defaultDataDirectory = "savedData";
+    static string defaultFileName = "data";
     static LoggerTerminal logger = new LoggerTerminal();
+    static IDataService dataService = new FileDataService(defaultDataDirectory);
 
     static async Task Main()
     {
         // Load data when the server starts
-        LoadData(defaultFilePath);
+        // LoadData(defaultFilePath);
+        dataService.Load(defaultFileName);
         listener.Prefixes.Add("http://localhost:8080/");
         listener.Start();
-        logger.Log("Now Listening...\nType 'shutdown' to stop the server. Type 'help' to see a list of commands");
+        Console.WriteLine("Now Listening...\nType 'shutdown' to stop the server. Type 'help' to see a list of commands");
 
         // Start listening for HTTP requests
         var listenTask = ListenAsync();
@@ -27,11 +31,7 @@ class Program
         // Start the command handling loop
         while (true)
         {
-            string command = Console.ReadLine();
-            if (command == null) // Ignore nulls from the console
-            {
-                continue;
-            }
+            string command = Console.ReadLine() ?? "";
 
             // Do console commands. Switch statement looks at first word so arguments can be passed afterwards.
             var commandParts = command.Trim().ToLower().Split(' ', 3);
@@ -40,7 +40,7 @@ class Program
                 case "shutdown":
                     cts.Cancel();
                     listener.Stop();
-                    SaveData(defaultFilePath); // Save data on shutdown
+                    dataService.Save(defaultFileName, data); // Save data on shutdown
                     break;
                 case "status":
                     Console.WriteLine("Server is running...");
@@ -145,36 +145,36 @@ class Program
         }
     }
 
-    static void SaveData(string filePath)
-    {
-        var jsonData = JsonSerializer.Serialize(data);
-        File.WriteAllText(filePath, jsonData);
-        Console.WriteLine($"Data saved to {filePath}.");
-    }
+    // static void SaveData(string filePath)
+    // {
+    //     var jsonData = JsonSerializer.Serialize(data);
+    //     File.WriteAllText(filePath, jsonData);
+    //     Console.WriteLine($"Data saved to {filePath}.");
+    // }
 
-    static void LoadData(string filePath)
-    {
-        if (File.Exists(filePath))
-        {
-            var jsonData = File.ReadAllText(filePath);
-            data = JsonSerializer.Deserialize<Game>(jsonData);
-            Console.WriteLine($"Data loaded from {filePath}.");
-        }
-        else
-        {
-            Console.WriteLine($"File {filePath} could not be loaded as it does not exist.");
-        }
-    }
+    // static void LoadData(string filePath)
+    // {
+    //     if (File.Exists(filePath))
+    //     {
+    //         var jsonData = File.ReadAllText(filePath);
+    //         data = JsonSerializer.Deserialize<Game>(jsonData);
+    //         Console.WriteLine($"Data loaded from {filePath}.");
+    //     }
+    //     else
+    //     {
+    //         Console.WriteLine($"File {filePath} could not be loaded as it does not exist.");
+    //     }
+    // }
 
     static void AskToSaveAndLoad(string filePath)
     {
         Console.WriteLine("Do you want to save current data before loading new data? (yes/no)");
-        string response = Console.ReadLine();
+        string response = Console.ReadLine() ?? "yes";
         if (response.Trim().ToLower() == "yes")
         {
-            SaveData(defaultFilePath);
+            dataService.Save(defaultFileName, data);
         }
-        LoadData(filePath);
+        data = dataService.Load(filePath) ?? data;
     }
 
     static void CreateNewLeaderboard(string name, int length)
@@ -185,7 +185,7 @@ class Program
         for (int i = 0; i < length; i++)
         {
             Console.WriteLine($"Enter type for item {i + 1} (string, int, datetime):");
-            string typeInput = Console.ReadLine();
+            string typeInput = Console.ReadLine() ?? "";
 
             switch (typeInput.ToLower())
             {
@@ -200,7 +200,7 @@ class Program
             }
 
             Console.WriteLine($"Enter name for item {i + 1}:");
-            string nameInput = Console.ReadLine();
+            string nameInput = Console.ReadLine() ?? "";
             format.Add(nameInput);
         }
 

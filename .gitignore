@@ -17,3 +17,6 @@ obj/
 *.msi
 *.out
 *.plist
+
+# Ignore saved json files
+HighscoreListener/SavedData/*json
