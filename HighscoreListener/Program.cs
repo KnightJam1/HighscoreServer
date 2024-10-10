@@ -11,6 +11,7 @@ class Program
     static CancellationTokenSource cts = new CancellationTokenSource();
     static Game data = new Game();
     static string defaultFilePath = "data.json";
+    static LoggerTerminal logger = new LoggerTerminal();
 
     static async Task Main()
     {
@@ -18,7 +19,7 @@ class Program
         LoadData(defaultFilePath);
         listener.Prefixes.Add("http://localhost:8080/");
         listener.Start();
-        Console.WriteLine("Now Listening...\nType 'shutdown' to stop the server. Type 'help' to see a list of commands");
+        logger.Log("Now Listening...\nType 'shutdown' to stop the server. Type 'help' to see a list of commands");
 
         // Start listening for HTTP requests
         var listenTask = ListenAsync();
@@ -208,3 +209,13 @@ class Program
     }
 }
     
+    // Look at SOLID. Class has one responsibility
+    // Move functions to be methods of specific classes e.g. serialize/deserialize
+    // Look for sorted arrays/dicts.
+    // Allow/disallow administration through networking.
+    // Server class. Put listener inside.
+    // Class for writing out debug info. Logging class. Admin can determine if they want console, disk or no log. Severity levels: error, warn, info. Severity is an enum.
+    // Push to external server.
+    // Commit with every change.
+    // Logger class should be an interface object. ILogger.
+    // 

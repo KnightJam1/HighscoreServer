@@ -1,1 +1,1 @@
-{"Leaderboards":{"gamemode1":{"Entries":[["Josh","1000","2024-10-01"]],"Format":["name","score","date"],"DataTypeNames":["string","int","datetime"]}}}
+{"Leaderboards":{"gamemode1":{"Entries":[["Josh","1000","2024-10-01"],["Josh","1000","2024-10-01"]],"Format":["name","score","date"],"DataTypeNames":["string","int","datetime"]},"gamemode2":{"Entries":[],"Format":["username","score","date"],"DataTypeNames":["string","int","datetime"]}}}

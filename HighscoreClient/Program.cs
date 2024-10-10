@@ -18,7 +18,7 @@ class Program
             Console.WriteLine("Formats: " + formatsResponseBody);
 
             // Add a single entry
-            var entry = new KeyValuePair<string, string[]>("gamemode1", new string[] { "Josh", "1000", "2024-10-01" });
+            var entry = new KeyValuePair<string, string[]>("gamemode2", new string[] { "Josh", "1000", "2024-10-01", "hi" });
             var jsonContent = new StringContent(JsonSerializer.Serialize(entry), Encoding.UTF8, "application/json");
             HttpResponseMessage postResponse = await client.PostAsync("http://localhost:8080/", jsonContent);
             postResponse.EnsureSuccessStatusCode();
