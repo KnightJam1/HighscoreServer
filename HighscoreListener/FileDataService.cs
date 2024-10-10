@@ -28,7 +28,7 @@ namespace SaveLoadSystem
             string fileLocation = GetPathToFile(fileName); //Currently using a default data.json file. Could change to Game.name if game class gets a name property.
             if (!overwrite && File.Exists(fileLocation))
             {
-                throw new IOException($"The file '{fileLocation}' already exists and cannot be overwritten.");
+                Console.WriteLine($"The file '{fileLocation}' already exists and cannot be overwritten."); // Was a throw new IOException, changed to a writeline so the program doesn't end
             }
 
             File.WriteAllText(fileLocation, JsonSerializer.Serialize(data)); //Or use serializer.Serialize(data) if one is provided
@@ -47,6 +47,7 @@ namespace SaveLoadSystem
             else
             {
                 var loadedData = JsonSerializer.Deserialize<Game>(File.ReadAllText(fileLocation)) ?? new Game();
+                Console.WriteLine($"File {fileName}{fileExtension} was loaded.");
 
                 return loadedData;
             }

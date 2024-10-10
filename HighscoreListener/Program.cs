@@ -1,17 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using SaveLoadSystem;
+using ServerSystem;
 
 class Program
 {
     static HttpListener listener = new HttpListener();
     static CancellationTokenSource cts = new CancellationTokenSource();
     static Game data = new Game();
-    static string defaultDataDirectory = "savedData";
+    static Server server = new Server(listener, cts, data);
+    static string defaultDataDirectory = "SavedData";
     static string defaultFileName = "data";
     static LoggerTerminal logger = new LoggerTerminal();
     static IDataService dataService = new FileDataService(defaultDataDirectory);
@@ -20,13 +23,14 @@ class Program
     {
         // Load data when the server starts
         // LoadData(defaultFilePath);
-        dataService.Load(defaultFileName);
+        data = dataService.Load(defaultFileName) ?? new Game();
+        server.UpdateData(data);
         listener.Prefixes.Add("http://localhost:8080/");
         listener.Start();
         Console.WriteLine("Now Listening...\nType 'shutdown' to stop the server. Type 'help' to see a list of commands");
 
         // Start listening for HTTP requests
-        var listenTask = ListenAsync();
+        var listenTask = server.ListenAsync(); // ListenAsync();
 
         // Start the command handling loop
         while (true)
@@ -53,7 +57,7 @@ class Program
                     {
                         AskToSaveAndLoad(commandParts[1]);
                     }
-                    if (commandParts.Length == 3)
+                    else if (commandParts.Length == 3)
                     {
                         Console.WriteLine("Too many arguments.");
                     }
@@ -88,62 +92,62 @@ class Program
     }
 
     // Listen for a client to request something from the server
-    static async Task ListenAsync()
-    {
-        try
-        {
-            while (!cts.Token.IsCancellationRequested)
-            {
-                var context = await listener.GetContextAsync();
-                _ = Task.Run(() => HandleRequest(context));
-            }
-        }
-        catch (HttpListenerException) when (cts.Token.IsCancellationRequested)
-        {
-            // Expected exception when listener is stopped
-        }
-    }
+    // static async Task ListenAsync()
+    // {
+    //     try
+    //     {
+    //         while (!cts.Token.IsCancellationRequested)
+    //         {
+    //             var context = await listener.GetContextAsync();
+    //             _ = Task.Run(() => HandleRequest(context));
+    //         }
+    //     }
+    //     catch (HttpListenerException) when (cts.Token.IsCancellationRequested)
+    //     {
+    //         // Expected exception when listener is stopped
+    //     }
+    // }
 
     // Handle the request, with functionality for POST
-    static async Task HandleRequest(HttpListenerContext context)
-    {
-        if (context.Request.HttpMethod == "POST")
-        {
-            using (var reader = new StreamReader(context.Request.InputStream))
-            {
-                string requestBody = await reader.ReadToEndAsync();
-                var entry = JsonSerializer.Deserialize<KeyValuePair<string, string[]>>(requestBody);
+    // static async Task HandleRequest(HttpListenerContext context)
+    // {
+    //     if (context.Request.HttpMethod == "POST")
+    //     {
+    //         using (var reader = new StreamReader(context.Request.InputStream))
+    //         {
+    //             string requestBody = await reader.ReadToEndAsync();
+    //             var entry = JsonSerializer.Deserialize<KeyValuePair<string, string[]>>(requestBody);
 
-                if (data.AddEntry(entry.Key, entry.Value, out string message))
-                {
-                    context.Response.StatusCode = (int)HttpStatusCode.OK;
-                    var response = JsonSerializer.Serialize(new { Message = message });
-                    byte[] buffer = System.Text.Encoding.UTF8.GetBytes(response);
-                    context.Response.ContentLength64 = buffer.Length;
-                    await context.Response.OutputStream.WriteAsync(buffer, 0, buffer.Length);
-                }
-                else
-                {
-                    context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                    var response = JsonSerializer.Serialize(new { Error = message });
-                    byte[] buffer = System.Text.Encoding.UTF8.GetBytes(response);
-                    context.Response.ContentLength64 = buffer.Length;
-                    await context.Response.OutputStream.WriteAsync(buffer, 0, buffer.Length);
-                }
-            }
-        }
-        else if (context.Request.HttpMethod == "GET")
-        {
-            var responseString = JsonSerializer.Serialize(data.GetFormats());
-            byte[] buffer = System.Text.Encoding.UTF8.GetBytes(responseString);
-            context.Response.ContentLength64 = buffer.Length;
+    //             if (data.AddEntry(entry.Key, entry.Value, out string message))
+    //             {
+    //                 context.Response.StatusCode = (int)HttpStatusCode.OK;
+    //                 var response = JsonSerializer.Serialize(new { Message = message });
+    //                 byte[] buffer = System.Text.Encoding.UTF8.GetBytes(response);
+    //                 context.Response.ContentLength64 = buffer.Length;
+    //                 await context.Response.OutputStream.WriteAsync(buffer, 0, buffer.Length);
+    //             }
+    //             else
+    //             {
+    //                 context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+    //                 var response = JsonSerializer.Serialize(new { Error = message });
+    //                 byte[] buffer = System.Text.Encoding.UTF8.GetBytes(response);
+    //                 context.Response.ContentLength64 = buffer.Length;
+    //                 await context.Response.OutputStream.WriteAsync(buffer, 0, buffer.Length);
+    //             }
+    //         }
+    //     }
+    //     else if (context.Request.HttpMethod == "GET")
+    //     {
+    //         var responseString = JsonSerializer.Serialize(data.GetFormats());
+    //         byte[] buffer = System.Text.Encoding.UTF8.GetBytes(responseString);
+    //         context.Response.ContentLength64 = buffer.Length;
 
-            using (var output = context.Response.OutputStream)
-            {
-                await output.WriteAsync(buffer, 0, buffer.Length);
-            }
-        }
-    }
+    //         using (var output = context.Response.OutputStream)
+    //         {
+    //             await output.WriteAsync(buffer, 0, buffer.Length);
+    //         }
+    //     }
+    // }
 
     // static void SaveData(string filePath)
     // {
@@ -172,9 +176,10 @@ class Program
         string response = Console.ReadLine() ?? "yes";
         if (response.Trim().ToLower() == "yes")
         {
-            dataService.Save(defaultFileName, data);
+            dataService.Save(filePath, data);
         }
-        data = dataService.Load(filePath) ?? data;
+        data = dataService.Load(filePath) ?? data; // Load new data. If the loaded data is null, keep using old data
+        server.UpdateData(data);
     }
 
     static void CreateNewLeaderboard(string name, int length)
@@ -212,10 +217,5 @@ class Program
     // Look at SOLID. Class has one responsibility
     // Move functions to be methods of specific classes e.g. serialize/deserialize
     // Look for sorted arrays/dicts.
-    // Allow/disallow administration through networking.
+    // Allow/disallow an attempt of administration by networking.
     // Server class. Put listener inside.
-    // Class for writing out debug info. Logging class. Admin can determine if they want console, disk or no log. Severity levels: error, warn, info. Severity is an enum.
-    // Push to external server.
-    // Commit with every change.
-    // Logger class should be an interface object. ILogger.
-    // 
