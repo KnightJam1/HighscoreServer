@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Text.Json;
@@ -25,8 +26,10 @@ class Program
         // LoadData(defaultFilePath);
         data = dataService.Load(defaultFileName) ?? new Game();
         server.UpdateData(data);
-        listener.Prefixes.Add("http://localhost:8080/");
+
+        listener.Prefixes.Add("http://localhost:8080/"); // Move listener to Server class?
         listener.Start();
+
         Console.WriteLine("Now Listening...\nType 'shutdown' to stop the server. Type 'help' to see a list of commands");
 
         // Start listening for HTTP requests
@@ -178,12 +181,19 @@ class Program
         {
             dataService.Save(filePath, data);
         }
-        data = dataService.Load(filePath) ?? data; // Load new data. If the loaded data is null, keep using old data
+        data = dataService.Load(filePath) ?? data; // Load new data. If the loaded data is null, keep using old data. Restructure so no self assignment
         server.UpdateData(data);
     }
 
     static void CreateNewLeaderboard(string name, int length)
     {
+#if DEBUG
+      if (name == "") Console.WriteLine("hey!");
+#else
+      Console.WriteLine("");
+#endif
+        Debug.Assert(name != "", "Hey!");
+
         List<string> format = new List<string>();
         List<string> dataTypeNames = new List<string>();
 
@@ -215,7 +225,21 @@ class Program
 }
     
     // Look at SOLID. Class has one responsibility
-    // Move functions to be methods of specific classes e.g. serialize/deserialize
     // Look for sorted arrays/dicts.
     // Allow/disallow an attempt of administration by networking.
-    // Server class. Put listener inside.
+    // Move terminal management to it's own class? Make an interface so it can be done by web too?
+
+    // DEFENSIVE PROGRAMMING
+    // Remove as much static as possible
+    // TDD Tesd Driven Development.
+    // Add more exceptions into class functions. Use Try Catch statements to have workarounds to the problem.
+    // Change Null management to 
+    // Add asserts to each function to test the input parameters. Handle incorrect options if possible and throw exceptions so they can be caught in the main code.
+    // Exceptions should only be used for networking and filesystems if Possible.
+
+    // SwitchCase to execute. Passed an instance of the class of the command to be executed.
+    // Executer class is passed the command line and runs a command class.
+    // Find a way to make 
+    // Make a CommandBase class with a run function.
+
+    // Move files to their own subfolders to organise. Utilise namespaces to make things easier.
