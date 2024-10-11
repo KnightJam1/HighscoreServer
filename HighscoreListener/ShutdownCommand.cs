@@ -18,7 +18,7 @@ public class ShutdownCommand : ICommand
         this.defaultFileName = defaultFileName;
         this.data = data;
     } 
-    public void Execute()
+    public void Execute(string[] args)
     {
         cts.Cancel();
         listener.Stop(); // These two should be replaced with something like server.stop(). The server should manage the cts and listener.

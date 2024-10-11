@@ -2,14 +2,25 @@ public class Executor
 {
     private readonly CommandFactory _factory;
 
-    public Executor()
+    public Executor(CommandFactory factory)
     {
-        _factory = new CommandFactory();
+        _factory = factory;
     }
 
-    public void ExecuteCommand(string commandName)
+    public void ExecuteCommand(string input)
     {
-        ICommand command = _factory.GetCommand(commandName);
-        command?.Execute();
+        var parts = input.Split(' ');
+        var commandName = parts[0];
+        var args = parts.Length > 1 ? parts[1..] : Array.Empty<string>();
+
+        var command = _factory.GetCommand(commandName);
+        if (command != null)
+        {
+            command.Execute(args);
+        }
+        else
+        {
+            Console.WriteLine("Unknown command");
+        }
     }
 }

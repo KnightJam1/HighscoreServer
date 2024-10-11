@@ -11,20 +11,27 @@ using ServerSystem;
 
 class Program
 {
+    // Move to server class if possible.
     static HttpListener listener = new HttpListener();
     static CancellationTokenSource cts = new CancellationTokenSource();
+
+    // Necessary.
     static Game data = new Game();
     static Server server = new Server(listener, cts, data);
-    static string defaultDataDirectory = "SavedData";
-    static string defaultFileName = "data";
     static LoggerTerminal logger = new LoggerTerminal();
     static IDataService dataService = new FileDataService(defaultDataDirectory);
+    static CommandFactory factory = new CommandFactory();
+    static Executor executor = new Executor(factory);
+
+    // Needed here because it's used by two commands.
+    static string defaultDataDirectory = "SavedData";
+    static string defaultFileName = "data";
 
     static async Task Main()
     {
         // Load data when the server starts
-        // LoadData(defaultFilePath);
-        data = dataService.Load(defaultFileName) ?? new Game();
+        Game? newData = dataService.Load(defaultFileName);
+        data ??= newData!;
         server.UpdateData(data);
 
         listener.Prefixes.Add("http://localhost:8080/"); // Move listener to Server class?
@@ -39,50 +46,51 @@ class Program
         while (true)
         {
             string command = Console.ReadLine() ?? "";
+            executor.ExecuteCommand(command);
 
-            // Do console commands. Switch statement looks at first word so arguments can be passed afterwards.
-            var commandParts = command.Trim().ToLower().Split(' ', 3);
-            switch (commandParts[0])
-            {
-                case "shutdown":
-                    cts.Cancel();
-                    listener.Stop();
-                    dataService.Save(defaultFileName, data); // Save data on shutdown
-                    break;
-                case "status":
-                    Console.WriteLine("Server is running...");
-                    break;
-                case "help":
-                    Console.WriteLine("Console commands:\n\tshutdown\t\t- close the server.\n\tstatus\t\t\t- see the status of the server.\n\tload filename.json\t- load the specified file.");
-                    break;
-                case "load":
-                    if (commandParts.Length == 2)
-                    {
-                        AskToSaveAndLoad(commandParts[1]);
-                    }
-                    else if (commandParts.Length == 3)
-                    {
-                        Console.WriteLine("Too many arguments.");
-                    }
-                    else
-                    {
-                        Console.WriteLine("Please specify a file name.");
-                    }
-                    break;
-                case "create":
-                    if (commandParts.Length == 3)
-                    {
-                        CreateNewLeaderboard(commandParts[1], int.Parse(commandParts[2]));
-                    }
-                    else
-                    {
-                        Console.WriteLine("Please provide the leaderboard details. Example: create leaderboardName 3");
-                    }
-                    break;
-                default:
-                    Console.WriteLine("Unknown command. Type help to see possible commands.");
-                    break;
-            }
+            // // Do console commands. Switch statement looks at first word so arguments can be passed afterwards.
+            // var commandParts = command.Trim().ToLower().Split(' ', 3);
+            // switch (commandParts[0])
+            // {
+            //     case "shutdown":
+            //         // cts.Cancel();
+            //         // listener.Stop();
+            //         // dataService.Save(defaultFileName, data); // Save data on shutdown
+            //         break;
+            //     case "status":
+            //         Console.WriteLine("Server is running...");
+            //         break;
+            //     case "help":
+            //         Console.WriteLine("Console commands:\n\tshutdown\t\t- close the server.\n\tstatus\t\t\t- see the status of the server.\n\tload filename.json\t- load the specified file.");
+            //         break;
+            //     case "load":
+            //         if (commandParts.Length == 2)
+            //         {
+            //             AskToSaveAndLoad(commandParts[1]);
+            //         }
+            //         else if (commandParts.Length == 3)
+            //         {
+            //             Console.WriteLine("Too many arguments.");
+            //         }
+            //         else
+            //         {
+            //             Console.WriteLine("Please specify a file name.");
+            //         }
+            //         break;
+            //     case "create":
+            //         if (commandParts.Length == 3)
+            //         {
+            //             CreateNewLeaderboard(commandParts[1], int.Parse(commandParts[2]));
+            //         }
+            //         else
+            //         {
+            //             Console.WriteLine("Please provide the leaderboard details. Example: create leaderboardName 3");
+            //         }
+            //         break;
+            //     default:
+            //         Console.WriteLine("Unknown command. Type help to see possible commands.");
+            //         break;
+            // }
 
             if (cts.Token.IsCancellationRequested)
             {
@@ -173,17 +181,21 @@ class Program
     //     }
     // }
 
-    static void AskToSaveAndLoad(string filePath)
-    {
-        Console.WriteLine("Do you want to save current data before loading new data? (yes/no)");
-        string response = Console.ReadLine() ?? "yes";
-        if (response.Trim().ToLower() == "yes")
-        {
-            dataService.Save(filePath, data);
-        }
-        data = dataService.Load(filePath) ?? data; // Load new data. If the loaded data is null, keep using old data. Restructure so no self assignment
-        server.UpdateData(data);
-    }
+    // static void AskToSaveAndLoad(string filePath)
+    // {
+    //     Console.WriteLine("Do you want to save current data before loading new data? (yes/no)");
+    //     string response = Console.ReadLine() ?? "yes";
+    //     if (response.Trim().ToLower() == "yes")
+    //     {
+    //         dataService.Save(filePath, data);
+    //     }
+    //     // Load new data. Only assign data if the new data is not null.
+    //     // Null forgiving operator is used because data has only one assignment prior to this function.
+    //     // Mentioned assignment does not allow data to be null
+    //     Game? newData = dataService.Load(filePath);
+    //     data ??= newData!;
+    //     server.UpdateData(data);
+    // }
 
     static void CreateNewLeaderboard(string name, int length)
     {
@@ -243,3 +255,4 @@ class Program
     // Make a CommandBase class with a run function.
 
     // Move files to their own subfolders to organise. Utilise namespaces to make things easier.
+    // Theres still some extra code ran after every load so consider abstracting it
