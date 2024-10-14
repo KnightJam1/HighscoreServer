@@ -10,33 +10,47 @@ namespace ServerSystem
 {
     public class Server : IServer
     {
-        private HttpListener listener;
-        private CancellationTokenSource cts;
+        private readonly HttpListener _listener = new HttpListener();
+        private bool _isRunning;
         private Game data;
+        static LoggerTerminal logger = new LoggerTerminal();
 
-        public Server(HttpListener listener, CancellationTokenSource cts, Game data)
+        public Server(string webAddress, Game data)
         {
-            this.listener = listener;
-            this.cts = cts;
             this.data = data;
+            _listener = new HttpListener();
+            _listener.Prefixes.Add(webAddress);
         }
 
         public void UpdateData(Game newData)
         {
             data = newData;
         }
+        public async Task Start()
+        {
+            _isRunning = true;
+            _listener.Start();
+            logger.Log("Now listening..."); // Consider listing prefixes
+            await ListenAsync();
+        }
+
+        public void Stop()
+        {
+            _isRunning = false;
+            _listener.Stop();
+        }
 
         public async Task ListenAsync()
         {
             try
             {
-                while (!cts.Token.IsCancellationRequested)
+                while (!Program.isShuttingDown())
                 {
-                    var context = await listener.GetContextAsync();
-                    _ = Task.Run(() => HandleRequest(context));
+                    var listenContext = await _listener.GetContextAsync();
+                    _ = Task.Run(() => HandleRequest(listenContext));
                 }
             }
-            catch (HttpListenerException) when (cts.Token.IsCancellationRequested)
+            catch (HttpListenerException) when (!Program.isShuttingDown())
             {
                 // Expected exception when listener is stopped
             }

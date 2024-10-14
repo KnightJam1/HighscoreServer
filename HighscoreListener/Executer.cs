@@ -7,7 +7,7 @@ public class Executor
         _factory = factory;
     }
 
-    public void ExecuteCommand(string input)
+    public void ExecuteCommand(CommandContext context, string input)
     {
         var parts = input.Split(' ');
         var commandName = parts[0];
@@ -16,7 +16,7 @@ public class Executor
         var command = _factory.GetCommand(commandName);
         if (command != null)
         {
-            command.Execute(args);
+            command.Execute(context, args);
         }
         else
         {
