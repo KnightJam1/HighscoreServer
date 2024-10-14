@@ -13,9 +13,26 @@ public class LoadCommand : ICommand
             context.dataService.Save(context.defaultFileName, context.data);
         }
         // Load new data. Only assign data if the new data is not null.
-        Game? newData = context.dataService.Load(args[0]);
-        //context.data ??= newData!;
-        //context.server.UpdateData(context.data);
-        context.UpdateData(newData!);
+        try
+        {
+            Game? newData = context.dataService.Load(args[0]);
+            context.UpdateData(newData!);
+        }
+        catch (FileNotFoundException ex)
+        {
+            context.logger.Log($"{ex.GetType()}: {ex.Message}", LoggerBase.SeverityLevel.ERROR);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            context.logger.Log($"{ex.GetType()}: Access denied.", LoggerBase.SeverityLevel.ERROR);
+        }
+        catch (IOException ex)
+        {
+            context.logger.Log($"{ex.GetType()}: IO error.", LoggerBase.SeverityLevel.ERROR);
+        }
+        catch (ArgumentException ex)
+        {
+            context.logger.Log($"{ex.GetType()}: {ex.Message}", LoggerBase.SeverityLevel.ERROR);
+        }
     }
 }

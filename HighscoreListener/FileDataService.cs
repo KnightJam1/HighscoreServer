@@ -10,6 +10,7 @@ namespace SaveLoadSystem
         //ISerializer serializer;
         string dataPath;
         string fileExtension;
+        LoggerTerminal logger = new LoggerTerminal();
 
         public FileDataService(string dataDirectory) // use 'public FileDataService(ISerializer serializer, string dataPath)' for the use of other serializers
         {
@@ -28,7 +29,7 @@ namespace SaveLoadSystem
             string fileLocation = GetPathToFile(fileName); //Currently using a default data.json file. Could change to Game.name if game class gets a name property.
             if (!overwrite && File.Exists(fileLocation))
             {
-                Console.WriteLine($"The file '{fileLocation}' already exists and cannot be overwritten."); // Was a throw new IOException, changed to a writeline so the program doesn't end
+                logger.Log($"The file '{fileLocation}' already exists and cannot be overwritten.",LoggerBase.SeverityLevel.ERROR); // Was a throw new IOException, changed to a writeline so the program doesn't end
             }
 
             File.WriteAllText(fileLocation, JsonSerializer.Serialize(data)); //Or use serializer.Serialize(data) if one is provided
@@ -36,13 +37,17 @@ namespace SaveLoadSystem
 
         public Game? Load(string fileName)
         {
+            if (fileName.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
+            {
+                throw new ArgumentException("Filename contains invalid characters.");
+            }
             string fileLocation = GetPathToFile(fileName);
 
             if (!File.Exists(fileLocation))
             {
-                Console.WriteLine($"File {fileName} could not be loaded as it does not exist.");
-                //throw new ArgumentException($"Could not find the file '{fileName}'");
-                return null;
+                // Console.WriteLine($"File {fileName} could not be loaded as it does not exist.");
+                throw new FileNotFoundException($"Could not find the file '{fileName}' as it does not exist.");
+                // return null;
             }
             else
             {

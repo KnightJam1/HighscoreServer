@@ -17,9 +17,6 @@ class Program
     static string defaultFileName = "data";
     static bool shutdownRequested = false;
 
-    // Move to server class if possible.
-    //static HttpListener listener = new HttpListener();
-
     // Passed into context.
     static Game data = new Game();
     static Server server = new Server("http://localhost:8080/",data);
@@ -35,15 +32,11 @@ class Program
     static void Main()
     {
         // Start asynchronous server
-        // server = new Server("http://localhost:8080/",data);
         _ = server.Start();
 
         // Load data when the server starts
         CommandContext context = new CommandContext(dataService,defaultDataDirectory,defaultFileName,data,server,logger);
         executor.ExecuteCommand(context, "defaultLoad");
-        // Game? newData = dataService.Load(defaultFileName);
-        // data ??= newData!;
-        // server.UpdateData(data);
 
         //Console.WriteLine("Now Listening...\nType 'shutdown' to stop the server. Type 'help' to see a list of commands");
 
@@ -87,46 +80,6 @@ class Program
     }
 
     //Make a hasShutdown command 
-
-
-// To be moved to a createCommand.
-    static void CreateNewLeaderboard(string name, int length)
-    {
-#if DEBUG
-      if (name == "") Console.WriteLine("hey!");
-#else
-      Console.WriteLine("");
-#endif
-        Debug.Assert(name != "", "Hey!");
-
-        List<string> format = new List<string>();
-        List<string> dataTypeNames = new List<string>();
-
-        for (int i = 0; i < length; i++)
-        {
-            Console.WriteLine($"Enter type for item {i + 1} (string, int, datetime):");
-            string typeInput = Console.ReadLine() ?? "";
-
-            switch (typeInput.ToLower())
-            {
-                case "string":
-                case "int":
-                case "datetime":
-                    dataTypeNames.Add(typeInput.ToLower());
-                    break;
-                default:
-                    Console.WriteLine($"Unknown type '{typeInput}'. Supported types are: string, int, datetime.");
-                    return;
-            }
-
-            Console.WriteLine($"Enter name for item {i + 1}:");
-            string nameInput = Console.ReadLine() ?? "";
-            format.Add(nameInput);
-        }
-
-        data.AddLeaderboard(name, format, dataTypeNames);
-        Console.WriteLine($"Leaderboard '{name}' created with format: {string.Join(", ", format)}");
-    }
 }
     
     // Look at SOLID. Class has one responsibility
