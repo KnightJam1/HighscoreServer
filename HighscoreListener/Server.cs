@@ -11,7 +11,7 @@ namespace ServerSystem
     public class Server : IServer
     {
         private readonly HttpListener _listener = new HttpListener();
-        private bool _isRunning;
+        // private bool _isRunning;
         private Game data;
         static LoggerTerminal logger = new LoggerTerminal();
 
@@ -28,7 +28,7 @@ namespace ServerSystem
         }
         public async Task Start()
         {
-            _isRunning = true;
+            //_isRunning = true;
             _listener.Start();
             logger.Log("Now listening..."); // Consider listing prefixes
             await ListenAsync();
@@ -36,7 +36,7 @@ namespace ServerSystem
 
         public void Stop()
         {
-            _isRunning = false;
+            //_isRunning = false;
             _listener.Stop();
         }
 

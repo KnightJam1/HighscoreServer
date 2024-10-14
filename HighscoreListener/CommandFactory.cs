@@ -22,8 +22,10 @@ public class CommandFactory
 
         foreach (var type in commandTypes)
         {
-            var commandInstance = (ICommand)Activator.CreateInstance(type);
-            _commands[commandInstance.Name.ToLower()] = commandInstance;
+            var commandInstance = (ICommand)Activator.CreateInstance(type)!;
+            if (commandInstance != null){
+                _commands[commandInstance.Name.ToLower()] = commandInstance;
+            }
         }
     }
 
@@ -33,7 +35,7 @@ public class CommandFactory
         {
             return _commands[commandName.ToLower()];
         }
-        Console.WriteLine("Unknown command");
-        return null;
+        // Console.WriteLine("Unknown command");
+        throw new InvalidOperationException($"Command '{commandName}' does not exist.");
     }
 }

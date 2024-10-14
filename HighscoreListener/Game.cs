@@ -11,6 +11,7 @@ public class Game
         {
             Leaderboards[name] = new Leaderboard(format, dataTypeNames);
         }
+        // else throw an exception.
     }
 
     public bool AddEntry(string gameMode, string[] entry, out string message)

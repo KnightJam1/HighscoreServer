@@ -1,6 +1,8 @@
 using System.Net;
 using SaveLoadSystem;
 using ServerSystem;
+using System.Text.Json;
+using System.Diagnostics;
 
 public class CommandContext
 {
@@ -19,5 +21,13 @@ public class CommandContext
         this.data = data;
         this.server = server;
         this.logger = logger;
+    }
+
+    public void UpdateData(Game newData)
+    {
+        Debug.Assert(newData != null, "Something went wrong. Tried to update data to a null.");
+        this.data = newData!;
+        Console.WriteLine(JsonSerializer.Serialize(this.data));
+        this.server.UpdateData(this.data);
     }
 }

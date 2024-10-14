@@ -22,7 +22,7 @@ class Program
 
     // Passed into context.
     static Game data = new Game();
-    static Server server;
+    static Server server = new Server("http://localhost:8080/",data);
     static IDataService dataService = new FileDataService(defaultDataDirectory);
     static LoggerTerminal logger = new LoggerTerminal();
 
@@ -35,12 +35,12 @@ class Program
     static void Main()
     {
         // Start asynchronous server
-        server = new Server("http://localhost:8080/",data);
+        // server = new Server("http://localhost:8080/",data);
         _ = server.Start();
 
         // Load data when the server starts
         CommandContext context = new CommandContext(dataService,defaultDataDirectory,defaultFileName,data,server,logger);
-        executor.ExecuteCommand(context, $"load {defaultFileName}.json");
+        executor.ExecuteCommand(context, $"load {defaultFileName}");
         // Game? newData = dataService.Load(defaultFileName);
         // data ??= newData!;
         // server.UpdateData(data);
@@ -51,7 +51,14 @@ class Program
         while (true)
         {
             string command = Console.ReadLine() ?? "";
-            executor.ExecuteCommand(context, command);
+            try
+            {
+                executor.ExecuteCommand(context, command);
+            }
+            catch
+            {
+                Console.WriteLine($"Command {command} could not be performed."); // Replace later with a "not-a-command" command.
+            }
 
             if (shutdownRequested)
             {

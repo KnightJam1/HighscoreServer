@@ -46,7 +46,7 @@ namespace SaveLoadSystem
             }
             else
             {
-                var loadedData = JsonSerializer.Deserialize<Game>(File.ReadAllText(fileLocation)) ?? new Game();
+                Game loadedData = JsonSerializer.Deserialize<Game>(File.ReadAllText(fileLocation)) ?? new Game();
                 Console.WriteLine($"File {fileName}{fileExtension} was loaded.");
 
                 return loadedData;

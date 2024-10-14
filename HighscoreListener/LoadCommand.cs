@@ -13,8 +13,9 @@ public class LoadCommand : ICommand
             context.dataService.Save(context.defaultFileName, context.data);
         }
         // Load new data. Only assign data if the new data is not null.
-        Game? newData = context.dataService.Load(context.defaultFileName);
-        context.data ??= newData!;
-        context.server.UpdateData(context.data);
+        Game? newData = context.dataService.Load(args[0]);
+        //context.data ??= newData!;
+        //context.server.UpdateData(context.data);
+        context.UpdateData(newData!);
     }
 }
