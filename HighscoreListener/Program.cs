@@ -14,7 +14,7 @@ class Program
 {
     // Needed here because it's used by two commands.
     static string defaultDataDirectory = "SavedData";
-    static string defaultFileName = "defaultData";
+    static string defaultFileName = "data";
     static bool shutdownRequested = false;
 
     // Move to server class if possible.
@@ -40,7 +40,7 @@ class Program
 
         // Load data when the server starts
         CommandContext context = new CommandContext(dataService,defaultDataDirectory,defaultFileName,data,server,logger);
-        executor.ExecuteCommand(context, $"load {defaultFileName}");
+        executor.ExecuteCommand(context, "defaultLoad");
         // Game? newData = dataService.Load(defaultFileName);
         // data ??= newData!;
         // server.UpdateData(data);

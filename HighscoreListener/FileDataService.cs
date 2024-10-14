@@ -53,6 +53,24 @@ namespace SaveLoadSystem
             }
         }
 
+        public Game FirstTimeLoad(string fileName)
+        {
+            string fileLocation = GetPathToFile(fileName);
+
+            if (!File.Exists(fileLocation))
+            {
+                Console.WriteLine($"No default file was found, created new data."); // Potentially replace with an exception.
+                return new Game();
+            }
+            else
+            {
+                Game loadedData = JsonSerializer.Deserialize<Game>(File.ReadAllText(fileLocation)) ?? new Game();
+                Console.WriteLine($"File {fileName}{fileExtension} was loaded.");
+
+                return loadedData;
+            }
+        }
+
         public void Delete(string fileName)
         {
             string fileLocation = GetPathToFile(fileName);
