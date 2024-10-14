@@ -10,7 +10,26 @@ public class LoadCommand : ICommand
         string response = Console.ReadLine() ?? "yes";
         if (response.Trim().ToLower() == "yes")
         {
-            context.dataService.Save(context.defaultFileName, context.data);
+            try
+            {
+                context.dataService.Save(context.defaultFileName, context.data);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                context.logger.Log($"{ex.GetType()}: Access denied.", LoggerBase.SeverityLevel.ERROR);
+            }
+            catch (ArgumentException ex)
+            {
+                context.logger.Log($"{ex.GetType()}: {ex.Message}", LoggerBase.SeverityLevel.ERROR);
+            }
+            catch (PathTooLongException ex)
+            {
+                context.logger.Log($"{ex.GetType()}: The specified path is too long.", LoggerBase.SeverityLevel.ERROR);
+            }
+            catch (IOException ex)
+            {
+                context.logger.Log($"{ex.GetType()}: {ex.Message}", LoggerBase.SeverityLevel.ERROR);
+            }
         }
         // Load new data. Only assign data if the new data is not null.
         try
@@ -26,13 +45,17 @@ public class LoadCommand : ICommand
         {
             context.logger.Log($"{ex.GetType()}: Access denied.", LoggerBase.SeverityLevel.ERROR);
         }
-        catch (IOException ex)
+        catch (PathTooLongException ex)
         {
-            context.logger.Log($"{ex.GetType()}: IO error.", LoggerBase.SeverityLevel.ERROR);
+            context.logger.Log($"{ex.GetType()}: The specified path is too long.", LoggerBase.SeverityLevel.ERROR);
         }
         catch (ArgumentException ex)
         {
             context.logger.Log($"{ex.GetType()}: {ex.Message}", LoggerBase.SeverityLevel.ERROR);
+        }
+        catch (IOException ex)
+        {
+            context.logger.Log($"{ex.GetType()}: IO error.", LoggerBase.SeverityLevel.ERROR);
         }
     }
 }

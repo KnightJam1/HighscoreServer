@@ -26,10 +26,18 @@ namespace SaveLoadSystem
 
         public void Save(string fileName, Game data, bool overwrite = true)
         {
+            if (fileName.EndsWith(".json"))
+            {
+                fileName = fileName.Substring(0, fileName.Length - ".json".Length);
+            }
+            if (fileName.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
+            {
+                throw new ArgumentException("Filename contains invalid characters.");
+            }
             string fileLocation = GetPathToFile(fileName); //Currently using a default data.json file. Could change to Game.name if game class gets a name property.
             if (!overwrite && File.Exists(fileLocation))
             {
-                logger.Log($"The file '{fileLocation}' already exists and cannot be overwritten.",LoggerBase.SeverityLevel.ERROR); // Was a throw new IOException, changed to a writeline so the program doesn't end
+                throw new IOException($"The file '{fileLocation}' already exists and cannot be overwritten."); // Was a throw new IOException, changed to a writeline so the program doesn't end
             }
 
             File.WriteAllText(fileLocation, JsonSerializer.Serialize(data)); //Or use serializer.Serialize(data) if one is provided
@@ -37,6 +45,10 @@ namespace SaveLoadSystem
 
         public Game? Load(string fileName)
         {
+            if (fileName.EndsWith(".json"))
+            {
+                fileName = fileName.Substring(0, fileName.Length - ".json".Length);
+            }
             if (fileName.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
             {
                 throw new ArgumentException("Filename contains invalid characters.");
@@ -60,6 +72,10 @@ namespace SaveLoadSystem
 
         public Game FirstTimeLoad(string fileName)
         {
+            if (fileName.EndsWith(".json"))
+            {
+                fileName = fileName.Substring(0, fileName.Length - ".json".Length);
+            }
             string fileLocation = GetPathToFile(fileName);
 
             if (!File.Exists(fileLocation))
