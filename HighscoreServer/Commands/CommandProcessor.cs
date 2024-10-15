@@ -1,6 +1,4 @@
-using HighscoreListener.Commands;
-
-namespace HighscoreListener;
+namespace HighscoreListener.Commands;
 
 public class Executor
 {

@@ -1,4 +1,4 @@
-namespace HighscoreListener
+namespace HighscoreListener.DataServices
 {
     public interface ISerializer
     {

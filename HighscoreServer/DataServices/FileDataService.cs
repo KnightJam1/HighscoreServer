@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace HighscoreListener
+namespace HighscoreListener.DataServices
 {
     public class FileDataService : IDataService
     {
