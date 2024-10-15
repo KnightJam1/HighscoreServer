@@ -1,8 +1,7 @@
-using System.Net;
-using SaveLoadSystem;
-using ServerSystem;
-using System.Text.Json;
 using System.Diagnostics;
+using System.Text.Json;
+
+namespace HighscoreListener.Commands;
 
 public class CommandContext
 {

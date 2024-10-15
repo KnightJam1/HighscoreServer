@@ -1,42 +1,34 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Net;
-using System.Net.NetworkInformation;
-using System.Security.Cryptography;
-using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
-using SaveLoadSystem;
-using ServerSystem;
+﻿using HighscoreListener.Commands;
+
+namespace HighscoreListener;
 
 class Program
 {
     // Needed here because it's used by two commands.
-    static string defaultDataDirectory = "SavedData";
-    static string defaultFileName = "data";
-    static bool shutdownRequested = false;
+    static string _defaultDataDirectory = "SavedData";
+    static string _defaultFileName = "data";
+    static bool _shutdownRequested = false;
 
     // Passed into context.
-    static Game data = new Game();
-    static Server server = new Server("http://localhost:8080/",data);
-    static IDataService dataService = new FileDataService(defaultDataDirectory);
-    static LoggerTerminal logger = new LoggerTerminal();
+    static Game _data = new Game();
+    static Server _server = new Server("http://localhost:8080/",_data);
+    static IDataService _dataService = new FileDataService(_defaultDataDirectory);
+    static LoggerTerminal _logger = new LoggerTerminal();
 
     // Used only in main.
-    static CommandFactory factory = new CommandFactory();
-    static Executor executor = new Executor(factory);
+    static CommandFactory _factory = new CommandFactory();
+    static Executor _executor = new Executor(_factory);
 
     
 
     static void Main()
     {
         // Start asynchronous server
-        _ = server.Start();
+        _ = _server.Start();
 
         // Load data when the server starts
-        CommandContext context = new CommandContext(dataService,defaultDataDirectory,defaultFileName,data,server,logger);
-        executor.ExecuteCommand(context, "defaultLoad");
+        CommandContext context = new CommandContext(_dataService,_defaultDataDirectory,_defaultFileName,_data,_server,_logger);
+        _executor.ExecuteCommand(context, "defaultLoad");
 
         //Console.WriteLine("Now Listening...\nType 'shutdown' to stop the server. Type 'help' to see a list of commands");
 
@@ -46,16 +38,16 @@ class Program
             string command = Console.ReadLine() ?? "";
             try
             {
-                executor.ExecuteCommand(context, command);
+                _executor.ExecuteCommand(context, command);
             }
             catch
             {
                 Console.WriteLine($"Command {command} could not be performed."); // Replace later with a "not-a-command" command.
             }
 
-            if (shutdownRequested)
+            if (_shutdownRequested)
             {
-                server.Stop();
+                _server.Stop();
                 break;
             }
         }
@@ -63,26 +55,26 @@ class Program
         Console.WriteLine("Server has shut down.");
     }
 
-/// <returns> return true when shutdown request is accepted </returns>
+    /// <returns> return true when shutdown request is accepted </returns>
     public static bool RequestShutdown()
     {
-        shutdownRequested = true;
+        _shutdownRequested = true;
         return true; // The shutdown was accepted
     }
 
-/// <summary>
-/// 
-/// </summary>
-/// <returns></returns>
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
     public static bool isShuttingDown()
     {
-        return shutdownRequested;
+        return _shutdownRequested;
     }
 
     //Make a hasShutdown command 
 }
-    
-    // Look at SOLID. Class has one responsibility
+
+// Look at SOLID. Class has one responsibility
     // Look for sorted arrays/dicts.
     // Allow/disallow an attempt of administration by networking.
     // Move terminal management to it's own class? Make an interface so it can be done by web too?

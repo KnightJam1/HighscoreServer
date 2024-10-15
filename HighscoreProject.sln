@@ -5,7 +5,7 @@ VisualStudioVersion = 17.5.002.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HighscoreClient", "HighscoreClient\HighscoreClient.csproj", "{AD24AE62-BB4A-4810-BC3C-B79C8C3F3E6C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HighscoreListener", "HighscoreListener\HighscoreListener.csproj", "{EA04D493-64B3-41D7-BBA1-4A9EDF643077}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HighscoreServer", "HighscoreServer\HighscoreServer.csproj", "{EA04D493-64B3-41D7-BBA1-4A9EDF643077}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

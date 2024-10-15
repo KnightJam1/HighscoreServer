@@ -1,3 +1,5 @@
+namespace HighscoreListener.Commands;
+
 public interface ICommand
 {
     string Name { get; }

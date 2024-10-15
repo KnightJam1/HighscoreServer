@@ -1,8 +1,6 @@
-using System;
-using System.Collections.Generic;
 using System.Net;
 
-namespace ServerSystem
+namespace HighscoreListener
 {
     public interface IServer
     {

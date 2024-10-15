@@ -1,6 +1,4 @@
-using System.Collections.Generic;
-
-namespace SaveLoadSystem
+namespace HighscoreListener
 {
     public interface IDataService
     {

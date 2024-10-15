@@ -1,4 +1,4 @@
-namespace SaveLoadSystem
+namespace HighscoreListener
 {
     public interface ISerializer
     {

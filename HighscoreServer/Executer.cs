@@ -1,3 +1,7 @@
+using HighscoreListener.Commands;
+
+namespace HighscoreListener;
+
 public class Executor
 {
     private readonly CommandFactory _factory;

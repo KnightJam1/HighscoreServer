@@ -1,9 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Text.Json;
 
-namespace SaveLoadSystem
+namespace HighscoreListener
 {
     public class FileDataService : IDataService
     {

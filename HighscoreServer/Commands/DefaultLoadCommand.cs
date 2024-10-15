@@ -1,5 +1,4 @@
-using System.Net;
-using SaveLoadSystem;
+namespace HighscoreListener.Commands;
 
 public class DefaultLoadCommand : ICommand
 {

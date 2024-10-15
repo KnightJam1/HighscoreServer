@@ -1,4 +1,6 @@
 
+namespace HighscoreListener;
+
 public class LoggerTerminal:LoggerBase
 {
     public override void Log(string message, SeverityLevel severity = SeverityLevel.INFO)
