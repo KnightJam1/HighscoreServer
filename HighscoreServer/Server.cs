@@ -12,7 +12,7 @@ namespace HighscoreServer
     public class Server : IServer
     {
         private readonly HttpListener _listener;
-        // private bool _isRunning;
+        private bool _isRunning;
         private Game _data;
         static readonly LoggerTerminal Logger = new LoggerTerminal();
         static readonly IDataService DataService = new FileDataService("SavedData",".json");
@@ -62,7 +62,7 @@ namespace HighscoreServer
         
         public async Task Start()
         {
-            //_isRunning = true;
+            _isRunning = true;
             _listener.Start();
             Logger.Log("Now Listening...\nType 'shutdown' to stop the server. Type 'help' to see a list of commands"); // Consider listing prefixes
             await ListenAsync();
@@ -70,8 +70,12 @@ namespace HighscoreServer
 
         public void Stop()
         {
-            //_isRunning = false;
+            _isRunning = false;
+            SaveData("data");
+            Logger.Log("Saved current data to data.json.");
+            Logger.Log("Shutting down the server...");
             _listener.Stop();
+            Program.RequestShutdown();
         }
 
         /// <summary>

@@ -8,8 +8,6 @@ public class ShutdownCommand : ICommand
     public string Name => "shutdown";
     public void Execute(CommandContext context, string[] args)
     {
-        Program.RequestShutdown();
-
-        context.Server.SaveData(context.DefaultFileName);
+        context.Server.Stop();
     }
 }
