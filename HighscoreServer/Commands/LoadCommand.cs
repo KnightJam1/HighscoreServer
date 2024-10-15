@@ -1,3 +1,5 @@
+using HighscoreListener.Loggers;
+
 namespace HighscoreListener.Commands;
 
 public class LoadCommand : ICommand

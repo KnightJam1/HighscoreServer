@@ -1,5 +1,5 @@
 
-namespace HighscoreListener;
+namespace HighscoreListener.Loggers;
 
 public class LoggerTerminal:LoggerBase
 {

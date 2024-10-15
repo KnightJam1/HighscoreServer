@@ -1,4 +1,5 @@
 using System.Text.Json;
+using HighscoreListener.Loggers;
 
 namespace HighscoreListener.DataServices
 {

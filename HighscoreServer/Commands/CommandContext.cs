@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Text.Json;
 using HighscoreListener.DataServices;
+using HighscoreListener.Loggers;
 
 namespace HighscoreListener.Commands;
 

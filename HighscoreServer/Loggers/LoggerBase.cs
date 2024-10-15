@@ -1,7 +1,7 @@
 
 using System.Diagnostics;
 
-namespace HighscoreListener;
+namespace HighscoreListener.Loggers;
 
 public abstract class LoggerBase
 {

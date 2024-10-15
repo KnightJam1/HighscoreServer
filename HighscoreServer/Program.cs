@@ -1,5 +1,6 @@
 ﻿using HighscoreListener.Commands;
 using HighscoreListener.DataServices;
+using HighscoreListener.Loggers;
 
 namespace HighscoreListener;
 
