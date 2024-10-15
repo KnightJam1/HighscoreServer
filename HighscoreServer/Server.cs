@@ -17,11 +17,11 @@ namespace HighscoreServer
         static readonly LoggerTerminal Logger = new LoggerTerminal();
         static readonly IDataService DataService = new FileDataService("SavedData",".json");
 
-        public Server(string webAddress, Game data)
+        public Server(string port)
         {
-            this._data = data;
+            _data = new Game();
             _listener = new HttpListener();
-            _listener.Prefixes.Add(webAddress);
+            _listener.Prefixes.Add($"http://localhost:{port}/");
         }
 
         public void AddLeaderboard(string name, List<string> format, List<string> dataTypeNames)

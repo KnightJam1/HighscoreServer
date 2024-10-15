@@ -12,9 +12,7 @@ static class Program
     private static bool _shutdownRequested = false;
 
     // Passed into context.
-    static Game _data = new Game();
-    static Server _server = new Server("http://localhost:8080/",_data);
-    // static readonly IDataService DataService = new FileDataService(DefaultDataDirectory);
+    static Server _server = new Server("8080");
     static readonly LoggerTerminal Logger = new LoggerTerminal();
 
     // Used only in main.
