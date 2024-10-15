@@ -29,7 +29,7 @@ namespace HighscoreServer
             _data.AddLeaderboard(name, format, dataTypeNames);
         }
         
-        public void InitialLoad(string defaultFileName)
+        public void InitialLoad(string defaultFileName) // Move functionality to LoadData? Pass an isInitial flag maybe
         {
             Game newData = DataService.InitialLoad(defaultFileName);
             _data = newData;

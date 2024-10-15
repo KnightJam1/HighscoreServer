@@ -6,9 +6,11 @@ namespace HighscoreServer;
 
 static class Program
 {
-    // Needed here because it's used by two commands.
+    // Unnecessary. Move to server.
     static readonly string DefaultDataDirectory = "SavedData";
     static readonly string DefaultFileName = "data";
+    
+    // Necessary static property
     private static bool _shutdownRequested = false;
 
     // Passed into context.
@@ -78,17 +80,3 @@ static class Program
     // Remove as much static as possible
     // TDD Test Driven Development.
     // Add asserts to each function to test the input parameters. Handle incorrect options if possible and throw exceptions so they can be caught in the main code.
-
-    // Add more exceptions into class functions. Use Try Catch statements to have workarounds to the problem.
-    // Change Null management to 
-    // Exceptions should only be used for networking and filesystems if Possible.
-
-    // SwitchCase to execute. Passed an instance of the class of the command to be executed.
-    // Executer class is passed the command line and runs a command class.
-    // Find a way to make 
-    // Make a CommandBase class with a run function.
-
-    // Move files to their own subfolders to organise. Utilise namespaces to make things easier.
-    // Theres still some extra code ran after every load so consider abstracting it
-
-    // Create a command context that has all of the objects.
