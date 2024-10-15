@@ -95,7 +95,7 @@ namespace HighscoreServer.DataServices
         /// </summary>
         /// <param name="fileName">The name of the default file.</param>
         /// <returns>Data from default file or new data.</returns>
-        public Game FirstTimeLoad(string fileName)
+        public Game InitialLoad(string fileName)
         {
             if (fileName.EndsWith(".json"))
             {

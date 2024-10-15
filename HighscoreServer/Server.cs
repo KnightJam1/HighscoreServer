@@ -31,7 +31,7 @@ namespace HighscoreServer
         
         public void InitialLoad(string defaultFileName)
         {
-            Game newData = DataService.FirstTimeLoad(defaultFileName);
+            Game newData = DataService.InitialLoad(defaultFileName);
             _data = newData;
         }
 

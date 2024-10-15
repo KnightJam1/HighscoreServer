@@ -19,14 +19,14 @@ namespace HighscoreServer.DataServices
         /// </summary>
         /// <param name="name">Name of the data to be loaded.</param>
         /// <returns>Returns data found with matching name. If there is no matching data, return null.</returns>
-        Game? Load(string name);
+        Game Load(string name);
         
         /// <summary>
         /// Initial load. Used when loading for the first time at the start of the project.
         /// </summary>
         /// <param name="name">Name of the data to be loaded.</param>
         /// <returns>Returns the data found or new data if not.</returns>
-        Game FirstTimeLoad(string name);
+        Game InitialLoad(string name);
         
         /// <summary>
         /// Delete specified data.
