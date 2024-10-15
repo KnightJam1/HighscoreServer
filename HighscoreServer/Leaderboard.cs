@@ -1,5 +1,9 @@
 namespace HighscoreListener;
 
+/// <summary>
+/// A leaderboard with a list of entries, a format and a set of types to match the format.
+/// The format and datatypes govern if a new entry can be added to the leaderboard so there is no mismatch in information.
+/// </summary>
 public class Leaderboard
 {
     private List<string[]> Entries { get; set; } = new List<string[]>();

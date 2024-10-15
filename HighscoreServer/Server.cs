@@ -4,6 +4,10 @@ using HighscoreListener.Loggers;
 
 namespace HighscoreListener
 {
+    /// <summary>
+    /// A server that listens for requests from the client.
+    /// Handles GET and POST commands.
+    /// </summary>
     public class Server : IServer
     {
         private readonly HttpListener _listener;
@@ -36,6 +40,9 @@ namespace HighscoreListener
             _listener.Stop();
         }
 
+        /// <summary>
+        /// Asynchronously listen for requests from clients.
+        /// </summary>
         public async Task ListenAsync()
         {
             try
@@ -52,6 +59,10 @@ namespace HighscoreListener
             }
         }
 
+        /// <summary>
+        /// Handle GET and POST requests from the client.
+        /// </summary>
+        /// <param name="context">The context of the request.</param>
         public async Task HandleRequest(HttpListenerContext context)
         {
             switch (context.Request.HttpMethod)

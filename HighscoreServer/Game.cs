@@ -1,5 +1,8 @@
 namespace HighscoreListener;
 
+/// <summary>
+/// A data type that represents a dictionary of leaderboards, keyed by a string representing the name of the leaderboard.
+/// </summary>
 public class Game
 {
     public Dictionary<string, Leaderboard> Leaderboards { get; init; } = new Dictionary<string, Leaderboard>();
@@ -21,6 +24,7 @@ public class Game
         }
         else
         {
+            // throw an exception instead
             message = $"Leaderboard for game mode '{gameMode}' does not exist.";
             return false;
         }
