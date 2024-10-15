@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text.Json;
+using HighscoreServer.DataServices;
 using HighscoreServer.Loggers;
 
 namespace HighscoreServer
@@ -14,6 +15,7 @@ namespace HighscoreServer
         // private bool _isRunning;
         private Game _data;
         static readonly LoggerTerminal Logger = new LoggerTerminal();
+        static readonly IDataService DataService = new FileDataService("SavedData",".json");
 
         public Server(string webAddress, Game data)
         {
@@ -22,10 +24,70 @@ namespace HighscoreServer
             _listener.Prefixes.Add(webAddress);
         }
 
-        public void UpdateData(Game newData)
+        public void AddLeaderboard(string name, List<string> format, List<string> dataTypeNames)
         {
+            _data.AddLeaderboard(name, format, dataTypeNames);
+        }
+        
+        public void InitialLoad(string defaultFileName)
+        {
+            Game newData = DataService.FirstTimeLoad(defaultFileName);
             _data = newData;
         }
+
+        public void LoadData(string defaultFileName)
+        {
+            try
+            {
+                Game newData = DataService.Load(defaultFileName)!;
+                _data = newData;
+            }
+            catch (FileNotFoundException ex)
+            {
+                Logger.Log($"{ex.GetType()}: {ex.Message}", LoggerBase.SeverityLevel.Error);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Logger.Log($"{ex.GetType()}: Access denied.", LoggerBase.SeverityLevel.Error);
+            }
+            catch (PathTooLongException ex)
+            {
+                Logger.Log($"{ex.GetType()}: The specified path is too long.", LoggerBase.SeverityLevel.Error);
+            }
+            catch (ArgumentException ex)
+            {
+                Logger.Log($"{ex.GetType()}: {ex.Message}", LoggerBase.SeverityLevel.Error);
+            }
+            catch (IOException ex)
+            {
+                Logger.Log($"{ex.GetType()}: IO error.", LoggerBase.SeverityLevel.Error);
+            }
+        }
+
+        public void SaveData(string savePath)
+        {
+            try
+            {
+                DataService.Save(savePath, _data);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Logger.Log($"{ex.GetType()}: Access denied.", LoggerBase.SeverityLevel.Error);
+            }
+            catch (ArgumentException ex)
+            {
+                Logger.Log($"{ex.GetType()}: {ex.Message}", LoggerBase.SeverityLevel.Error);
+            }
+            catch (PathTooLongException ex)
+            {
+                Logger.Log($"{ex.GetType()}: The specified path is too long.", LoggerBase.SeverityLevel.Error);
+            }
+            catch (IOException ex)
+            {
+                Logger.Log($"{ex.GetType()}: {ex.Message}", LoggerBase.SeverityLevel.Error);
+            }
+        }
+        
         public async Task Start()
         {
             //_isRunning = true;

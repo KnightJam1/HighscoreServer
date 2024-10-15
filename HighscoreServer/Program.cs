@@ -14,7 +14,7 @@ static class Program
     // Passed into context.
     static Game _data = new Game();
     static Server _server = new Server("http://localhost:8080/",_data);
-    static readonly IDataService DataService = new FileDataService(DefaultDataDirectory);
+    // static readonly IDataService DataService = new FileDataService(DefaultDataDirectory);
     static readonly LoggerTerminal Logger = new LoggerTerminal();
 
     // Used only in main.
@@ -29,7 +29,7 @@ static class Program
         _ = _server.Start();
 
         // Load data when the server starts
-        CommandContext context = new CommandContext(DataService,DefaultDataDirectory,DefaultFileName,_data,_server,Logger);
+        CommandContext context = new CommandContext(DefaultDataDirectory,DefaultFileName,_server,Logger);
         CommandProcessor.ExecuteCommand(context, "defaultLoad");
 
         // Start the command handling loop

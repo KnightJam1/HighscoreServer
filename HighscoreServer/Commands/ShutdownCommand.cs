@@ -10,6 +10,6 @@ public class ShutdownCommand : ICommand
     {
         Program.RequestShutdown();
 
-        context.DataService.Save(context.DefaultFileName, context.Data);
+        context.Server.SaveData(context.DefaultFileName);
     }
 }

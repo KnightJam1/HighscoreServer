@@ -14,10 +14,10 @@ namespace HighscoreServer.DataServices
         readonly string _fileExtension;
         readonly LoggerTerminal _logger = new LoggerTerminal();
 
-        public FileDataService(string dataDirectory) // use 'public FileDataService(ISerializer serializer, string dataPath)' for the use of other serializers
+        public FileDataService(string dataDirectory, string fileExtension) // use 'public FileDataService(ISerializer serializer, string dataPath)' for the use of other serializers
         {
             _dataPath = dataDirectory;
-            _fileExtension = ".json";
+            _fileExtension = fileExtension;
             //this.serializer = serializer;
         }
 

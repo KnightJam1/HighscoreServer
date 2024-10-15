@@ -42,7 +42,7 @@ public class CreateCommand : ICommand
             format.Add(nameInput);
         }
 
-        context.Data.AddLeaderboard(args[0], format, dataTypeNames);
+        context.Server.AddLeaderboard(args[0], format, dataTypeNames);
         Console.WriteLine($"Leaderboard '{args[0]}' created with format: {string.Join(", ", format)}");
     }
 }
