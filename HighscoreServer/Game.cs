@@ -2,7 +2,7 @@ namespace HighscoreListener;
 
 public class Game
 {
-    public Dictionary<string, Leaderboard> Leaderboards { get; set; } = new Dictionary<string, Leaderboard>();
+    public Dictionary<string, Leaderboard> Leaderboards { get; init; } = new Dictionary<string, Leaderboard>();
 
     public void AddLeaderboard(string name, List<string> format, List<string> dataTypeNames)
     {

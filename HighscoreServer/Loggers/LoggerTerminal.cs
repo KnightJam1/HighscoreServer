@@ -3,11 +3,11 @@ namespace HighscoreListener.Loggers;
 
 public class LoggerTerminal:LoggerBase
 {
-    public override void Log(string message, SeverityLevel severity = SeverityLevel.INFO)
+    public override void Log(string message, SeverityLevel severity = SeverityLevel.Info)
     {
-        if (severity >= currentSeverity)
+        if (severity >= CurrentSeverity)
         {
-            Console.WriteLine($"{severityEmojis[severity]}: {message}");
+            Console.WriteLine($"{SeverityEmojis[severity]}: {message}");
         }
     }
 }

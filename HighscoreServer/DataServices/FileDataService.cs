@@ -6,20 +6,20 @@ namespace HighscoreListener.DataServices
     public class FileDataService : IDataService
     {
         //ISerializer serializer;
-        string dataPath;
-        string fileExtension;
-        LoggerTerminal logger = new LoggerTerminal();
+        readonly string _dataPath;
+        readonly string _fileExtension;
+        readonly LoggerTerminal _logger = new LoggerTerminal();
 
         public FileDataService(string dataDirectory) // use 'public FileDataService(ISerializer serializer, string dataPath)' for the use of other serializers
         {
-            dataPath = dataDirectory;
-            fileExtension = ".json";
+            _dataPath = dataDirectory;
+            _fileExtension = ".json";
             //this.serializer = serializer;
         }
 
         string GetPathToFile(string fileName)
         {
-            return Path.Combine(dataPath, string.Concat(fileName, fileExtension));
+            return Path.Combine(_dataPath, string.Concat(fileName, _fileExtension));
         }
 
         public void Save(string fileName, Game data, bool overwrite = true)
@@ -62,7 +62,7 @@ namespace HighscoreListener.DataServices
             else
             {
                 Game loadedData = JsonSerializer.Deserialize<Game>(File.ReadAllText(fileLocation)) ?? new Game();
-                Console.WriteLine($"File {fileName}{fileExtension} was loaded.");
+                Console.WriteLine($"File {fileName}{_fileExtension} was loaded.");
 
                 return loadedData;
             }
@@ -78,13 +78,13 @@ namespace HighscoreListener.DataServices
 
             if (!File.Exists(fileLocation))
             {
-                Console.WriteLine($"No default file was found, created new data."); // Potentially replace with an exception.
+                _logger.Log($"No default file was found, created new data."); // Potentially replace with an exception.
                 return new Game();
             }
             else
             {
                 Game loadedData = JsonSerializer.Deserialize<Game>(File.ReadAllText(fileLocation)) ?? new Game();
-                Console.WriteLine($"File {fileName}{fileExtension} was loaded.");
+                _logger.Log($"File {fileName}{_fileExtension} was loaded.");
 
                 return loadedData;
             }
@@ -102,7 +102,7 @@ namespace HighscoreListener.DataServices
 
         public void DeleteAll()
         {
-            foreach (string filePath in Directory.GetFiles(dataPath))
+            foreach (string filePath in Directory.GetFiles(_dataPath))
             {
                 File.Delete(filePath);
             }
@@ -110,9 +110,9 @@ namespace HighscoreListener.DataServices
 
         public IEnumerable<string> ListSaves()
         {
-            foreach (string path in Directory.EnumerateFiles(dataPath))
+            foreach (string path in Directory.EnumerateFiles(_dataPath))
             {
-                if (Path.GetExtension(path) == fileExtension)
+                if (Path.GetExtension(path) == _fileExtension)
                 {
                     yield return Path.GetFileNameWithoutExtension(path);
                 }

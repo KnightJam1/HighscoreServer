@@ -37,7 +37,7 @@ public class CreateCommand : ICommand
             format.Add(nameInput);
         }
 
-        context.data.AddLeaderboard(args[0], format, dataTypeNames);
+        context.Data.AddLeaderboard(args[0], format, dataTypeNames);
         Console.WriteLine($"Leaderboard '{args[0]}' created with format: {string.Join(", ", format)}");
     }
 }

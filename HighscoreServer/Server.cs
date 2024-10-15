@@ -6,27 +6,27 @@ namespace HighscoreListener
 {
     public class Server : IServer
     {
-        private readonly HttpListener _listener = new HttpListener();
+        private readonly HttpListener _listener;
         // private bool _isRunning;
-        private Game data;
-        static LoggerTerminal logger = new LoggerTerminal();
+        private Game _data;
+        static readonly LoggerTerminal Logger = new LoggerTerminal();
 
         public Server(string webAddress, Game data)
         {
-            this.data = data;
+            this._data = data;
             _listener = new HttpListener();
             _listener.Prefixes.Add(webAddress);
         }
 
         public void UpdateData(Game newData)
         {
-            data = newData;
+            _data = newData;
         }
         public async Task Start()
         {
             //_isRunning = true;
             _listener.Start();
-            logger.Log("Now listening..."); // Consider listing prefixes
+            Logger.Log("Now listening..."); // Consider listing prefixes
             await ListenAsync();
         }
 
@@ -40,13 +40,13 @@ namespace HighscoreListener
         {
             try
             {
-                while (!Program.isShuttingDown())
+                while (!Program.IsShuttingDown())
                 {
                     var listenContext = await _listener.GetContextAsync();
                     _ = Task.Run(() => HandleRequest(listenContext));
                 }
             }
-            catch (HttpListenerException) when (!Program.isShuttingDown())
+            catch (HttpListenerException) when (!Program.IsShuttingDown())
             {
                 // Expected exception when listener is stopped
             }
@@ -54,14 +54,15 @@ namespace HighscoreListener
 
         public async Task HandleRequest(HttpListenerContext context)
         {
-            if (context.Request.HttpMethod == "POST")
+            switch (context.Request.HttpMethod)
             {
-                using (var reader = new StreamReader(context.Request.InputStream))
+                case "POST":
                 {
-                    string requestBody = await reader.ReadToEndAsync();
+                    using var reader = new StreamReader(context.Request.InputStream);
+                    var requestBody = await reader.ReadToEndAsync();
                     var entry = JsonSerializer.Deserialize<KeyValuePair<string, string[]>>(requestBody);
 
-                    if (data.AddEntry(entry.Key, entry.Value, out string message))
+                    if (_data.AddEntry(entry.Key, entry.Value, out string message))
                     {
                         context.Response.StatusCode = (int)HttpStatusCode.OK;
                         var response = JsonSerializer.Serialize(new { Message = message });
@@ -77,17 +78,21 @@ namespace HighscoreListener
                         context.Response.ContentLength64 = buffer.Length;
                         await context.Response.OutputStream.WriteAsync(buffer, 0, buffer.Length);
                     }
-                }
-            }
-            else if (context.Request.HttpMethod == "GET")
-            {
-                var responseString = JsonSerializer.Serialize(data.GetFormats());
-                byte[] buffer = System.Text.Encoding.UTF8.GetBytes(responseString);
-                context.Response.ContentLength64 = buffer.Length;
 
-                using (var output = context.Response.OutputStream)
+                    break;
+                }
+                case "GET":
                 {
-                    await output.WriteAsync(buffer, 0, buffer.Length);
+                    var responseString = JsonSerializer.Serialize(_data.GetFormats());
+                    byte[] buffer = System.Text.Encoding.UTF8.GetBytes(responseString);
+                    context.Response.ContentLength64 = buffer.Length;
+
+                    using (var output = context.Response.OutputStream)
+                    {
+                        await output.WriteAsync(buffer, 0, buffer.Length);
+                    }
+
+                    break;
                 }
             }
         }

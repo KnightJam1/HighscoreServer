@@ -4,22 +4,22 @@ using HighscoreListener.Loggers;
 
 namespace HighscoreListener;
 
-class Program
+static class Program
 {
     // Needed here because it's used by two commands.
-    static string _defaultDataDirectory = "SavedData";
-    static string _defaultFileName = "data";
-    static bool _shutdownRequested = false;
+    static readonly string DefaultDataDirectory = "SavedData";
+    static readonly string DefaultFileName = "data";
+    private static bool _shutdownRequested = false;
 
     // Passed into context.
     static Game _data = new Game();
     static Server _server = new Server("http://localhost:8080/",_data);
-    static IDataService _dataService = new FileDataService(_defaultDataDirectory);
-    static LoggerTerminal _logger = new LoggerTerminal();
+    static readonly IDataService DataService = new FileDataService(DefaultDataDirectory);
+    static readonly LoggerTerminal Logger = new LoggerTerminal();
 
     // Used only in main.
-    static CommandFactory _factory = new CommandFactory();
-    static Executor _executor = new Executor(_factory);
+    static readonly CommandFactory Factory = new CommandFactory();
+    static readonly CommandProcessor CommandProcessor = new CommandProcessor(Factory);
 
     
 
@@ -29,8 +29,8 @@ class Program
         _ = _server.Start();
 
         // Load data when the server starts
-        CommandContext context = new CommandContext(_dataService,_defaultDataDirectory,_defaultFileName,_data,_server,_logger);
-        _executor.ExecuteCommand(context, "defaultLoad");
+        CommandContext context = new CommandContext(DataService,DefaultDataDirectory,DefaultFileName,_data,_server,Logger);
+        CommandProcessor.ExecuteCommand(context, "defaultLoad");
 
         //Console.WriteLine("Now Listening...\nType 'shutdown' to stop the server. Type 'help' to see a list of commands");
 
@@ -40,7 +40,7 @@ class Program
             string command = Console.ReadLine() ?? "";
             try
             {
-                _executor.ExecuteCommand(context, command);
+                CommandProcessor.ExecuteCommand(context, command);
             }
             catch
             {
@@ -68,7 +68,7 @@ class Program
     /// 
     /// </summary>
     /// <returns></returns>
-    public static bool isShuttingDown()
+    public static bool IsShuttingDown()
     {
         return _shutdownRequested;
     }

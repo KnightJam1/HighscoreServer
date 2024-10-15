@@ -1,10 +1,10 @@
 namespace HighscoreListener.Commands;
 
-public class Executor
+public class CommandProcessor
 {
     private readonly CommandFactory _factory;
 
-    public Executor(CommandFactory factory)
+    public CommandProcessor(CommandFactory factory)
     {
         _factory = factory;
     }

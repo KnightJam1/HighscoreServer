@@ -2,9 +2,9 @@ namespace HighscoreListener;
 
 public class Leaderboard
 {
-    public List<string[]> Entries { get; set; } = new List<string[]>();
+    private List<string[]> Entries { get; set; } = new List<string[]>();
     public List<string> Format { get; private set; }
-    public List<string> DataTypeNames { get; private set; }
+    private List<string> DataTypeNames { get; set; }
 
     public Leaderboard(List<string> format, List<string> dataTypeNames)
     {

@@ -13,50 +13,50 @@ public class LoadCommand : ICommand
         {
             try
             {
-                context.dataService.Save(context.defaultFileName, context.data);
+                context.DataService.Save(context.DefaultFileName, context.Data);
             }
             catch (UnauthorizedAccessException ex)
             {
-                context.logger.Log($"{ex.GetType()}: Access denied.", LoggerBase.SeverityLevel.ERROR);
+                context.Logger.Log($"{ex.GetType()}: Access denied.", LoggerBase.SeverityLevel.Error);
             }
             catch (ArgumentException ex)
             {
-                context.logger.Log($"{ex.GetType()}: {ex.Message}", LoggerBase.SeverityLevel.ERROR);
+                context.Logger.Log($"{ex.GetType()}: {ex.Message}", LoggerBase.SeverityLevel.Error);
             }
             catch (PathTooLongException ex)
             {
-                context.logger.Log($"{ex.GetType()}: The specified path is too long.", LoggerBase.SeverityLevel.ERROR);
+                context.Logger.Log($"{ex.GetType()}: The specified path is too long.", LoggerBase.SeverityLevel.Error);
             }
             catch (IOException ex)
             {
-                context.logger.Log($"{ex.GetType()}: {ex.Message}", LoggerBase.SeverityLevel.ERROR);
+                context.Logger.Log($"{ex.GetType()}: {ex.Message}", LoggerBase.SeverityLevel.Error);
             }
         }
         // Load new data. Only assign data if the new data is not null.
         try
         {
-            Game? newData = context.dataService.Load(args[0]);
+            Game? newData = context.DataService.Load(args[0]);
             context.UpdateData(newData!);
         }
         catch (FileNotFoundException ex)
         {
-            context.logger.Log($"{ex.GetType()}: {ex.Message}", LoggerBase.SeverityLevel.ERROR);
+            context.Logger.Log($"{ex.GetType()}: {ex.Message}", LoggerBase.SeverityLevel.Error);
         }
         catch (UnauthorizedAccessException ex)
         {
-            context.logger.Log($"{ex.GetType()}: Access denied.", LoggerBase.SeverityLevel.ERROR);
+            context.Logger.Log($"{ex.GetType()}: Access denied.", LoggerBase.SeverityLevel.Error);
         }
         catch (PathTooLongException ex)
         {
-            context.logger.Log($"{ex.GetType()}: The specified path is too long.", LoggerBase.SeverityLevel.ERROR);
+            context.Logger.Log($"{ex.GetType()}: The specified path is too long.", LoggerBase.SeverityLevel.Error);
         }
         catch (ArgumentException ex)
         {
-            context.logger.Log($"{ex.GetType()}: {ex.Message}", LoggerBase.SeverityLevel.ERROR);
+            context.Logger.Log($"{ex.GetType()}: {ex.Message}", LoggerBase.SeverityLevel.Error);
         }
         catch (IOException ex)
         {
-            context.logger.Log($"{ex.GetType()}: IO error.", LoggerBase.SeverityLevel.ERROR);
+            context.Logger.Log($"{ex.GetType()}: IO error.", LoggerBase.SeverityLevel.Error);
         }
     }
 }

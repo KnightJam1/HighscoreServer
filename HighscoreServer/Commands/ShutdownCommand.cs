@@ -17,7 +17,7 @@ public class ShutdownCommand : ICommand
         //listener.Stop(); // These two should be replaced with something like server.stop(). The server should manage the cts and listener.
         Program.RequestShutdown();
 
-        context.dataService.Save(context.defaultFileName, context.data);
+        context.DataService.Save(context.DefaultFileName, context.Data);
         // If cts is removed, I need to return a flag or something to signify that the loop should
     }
 }

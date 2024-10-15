@@ -7,28 +7,28 @@ namespace HighscoreListener.Commands;
 
 public class CommandContext
 {
-    public IDataService dataService;
-    public string defaultDataDirectory;
-    public string defaultFileName;
-    public Game data;
-    public Server server;
-    public LoggerBase logger;
+    public readonly IDataService DataService;
+    public string DefaultDataDirectory;
+    public readonly string DefaultFileName;
+    public Game Data;
+    private readonly Server _server;
+    public readonly LoggerBase Logger;
 
     public CommandContext(IDataService dataService, string defaultDataDirectory, string defaultFileName, Game data, Server server, LoggerBase logger)
     {
-        this.dataService = dataService;
-        this.defaultDataDirectory = defaultDataDirectory;
-        this.defaultFileName = defaultFileName;
-        this.data = data;
-        this.server = server;
-        this.logger = logger;
+        this.DataService = dataService;
+        this.DefaultDataDirectory = defaultDataDirectory;
+        this.DefaultFileName = defaultFileName;
+        this.Data = data;
+        this._server = server;
+        this.Logger = logger;
     }
 
     public void UpdateData(Game newData)
     {
         Debug.Assert(newData != null, "Something went wrong. Tried to update data to a null.");
-        this.data = newData!;
-        Console.WriteLine(JsonSerializer.Serialize(this.data));
-        this.server.UpdateData(this.data);
+        this.Data = newData!;
+        Console.WriteLine(JsonSerializer.Serialize(this.Data));
+        this._server.UpdateData(this.Data);
     }
 }
