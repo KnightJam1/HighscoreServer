@@ -76,9 +76,7 @@ namespace HighscoreServer.DataServices
 
             if (!File.Exists(fileLocation))
             {
-                // Console.WriteLine($"File {fileName} could not be loaded as it does not exist.");
                 throw new FileNotFoundException($"Could not find the file '{fileName}' as it does not exist.");
-                // return null;
             }
             else
             {

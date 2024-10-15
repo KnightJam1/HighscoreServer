@@ -11,11 +11,33 @@ public class CreateCommand : ICommand
     
     /// <param name="args">Should be a string name and int16 number of entries. E.g. 'gamemode1 3'</param>
     public void Execute(CommandContext context, string[] args)
-    {  
-        // args[0] should be a name, args[1] should be the number of entries
-        // Assert or catch if args[1] isnt int16
-
-        Debug.Assert(args[0] != "", "Hey!");
+    {
+        // Check for a valid number of arguments.
+        if (args.Length != 2)
+        {
+            throw new ArgumentException("Incorrect number of arguments.");
+        }
+        
+        // Check to see if args[0] is valid.
+        if (args[0] == "")
+        {
+            throw new ArgumentException("You must provide a name!");
+        }
+        
+        // Check to see if args[1] is valid.
+        try
+        {
+            int.Parse(args[1]);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            throw new ArgumentException("Number of items for an entry must be an integer.");
+        }
+        if (int.Parse(args[1]) < 1)
+        {
+            throw new ArgumentException("Cannot have fewer than one items in an entry.");
+        }
 
         List<string> format = new List<string>();
         List<string> dataTypeNames = new List<string>();

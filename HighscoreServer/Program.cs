@@ -38,9 +38,9 @@ static class Program
             {
                 CommandProcessor.ExecuteCommand(context, command);
             }
-            catch
+            catch (Exception ex)
             {
-                Console.WriteLine($"Command {command} could not be performed."); // Replace later with a "not-a-command" command.
+                Logger.Log($"{ex.GetType()}: {ex.Message}", LoggerBase.SeverityLevel.Error);
             }
 
             if (_shutdownRequested)
