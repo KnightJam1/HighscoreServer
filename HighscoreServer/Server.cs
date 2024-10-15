@@ -42,25 +42,9 @@ namespace HighscoreServer
                 Game newData = DataService.Load(defaultFileName)!;
                 _data = newData;
             }
-            catch (FileNotFoundException ex)
+            catch (Exception ex)
             {
                 Logger.Log($"{ex.GetType()}: {ex.Message}", LoggerBase.SeverityLevel.Error);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                Logger.Log($"{ex.GetType()}: Access denied.", LoggerBase.SeverityLevel.Error);
-            }
-            catch (PathTooLongException ex)
-            {
-                Logger.Log($"{ex.GetType()}: The specified path is too long.", LoggerBase.SeverityLevel.Error);
-            }
-            catch (ArgumentException ex)
-            {
-                Logger.Log($"{ex.GetType()}: {ex.Message}", LoggerBase.SeverityLevel.Error);
-            }
-            catch (IOException ex)
-            {
-                Logger.Log($"{ex.GetType()}: IO error.", LoggerBase.SeverityLevel.Error);
             }
         }
 
@@ -70,19 +54,7 @@ namespace HighscoreServer
             {
                 DataService.Save(savePath, _data);
             }
-            catch (UnauthorizedAccessException ex)
-            {
-                Logger.Log($"{ex.GetType()}: Access denied.", LoggerBase.SeverityLevel.Error);
-            }
-            catch (ArgumentException ex)
-            {
-                Logger.Log($"{ex.GetType()}: {ex.Message}", LoggerBase.SeverityLevel.Error);
-            }
-            catch (PathTooLongException ex)
-            {
-                Logger.Log($"{ex.GetType()}: The specified path is too long.", LoggerBase.SeverityLevel.Error);
-            }
-            catch (IOException ex)
+            catch (Exception ex)
             {
                 Logger.Log($"{ex.GetType()}: {ex.Message}", LoggerBase.SeverityLevel.Error);
             }
