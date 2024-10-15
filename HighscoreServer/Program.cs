@@ -32,8 +32,6 @@ static class Program
         CommandContext context = new CommandContext(DataService,DefaultDataDirectory,DefaultFileName,_data,_server,Logger);
         CommandProcessor.ExecuteCommand(context, "defaultLoad");
 
-        //Console.WriteLine("Now Listening...\nType 'shutdown' to stop the server. Type 'help' to see a list of commands");
-
         // Start the command handling loop
         while (true)
         {
@@ -64,10 +62,7 @@ static class Program
         return true; // The shutdown was accepted
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <returns></returns>
+    /// <returns> returns whether a shutdown has been requested or not</returns>
     public static bool IsShuttingDown()
     {
         return _shutdownRequested;

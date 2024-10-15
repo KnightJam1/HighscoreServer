@@ -26,7 +26,7 @@ namespace HighscoreListener
         {
             //_isRunning = true;
             _listener.Start();
-            Logger.Log("Now listening..."); // Consider listing prefixes
+            Logger.Log("Now Listening...\nType 'shutdown' to stop the server. Type 'help' to see a list of commands"); // Consider listing prefixes
             await ListenAsync();
         }
 

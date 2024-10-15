@@ -3,6 +3,10 @@ using HighscoreListener.Loggers;
 
 namespace HighscoreListener.DataServices
 {
+    /// <summary>
+    /// This class handles data by reading and writing to files.
+    /// Inherits from IDataService
+    /// </summary>
     public class FileDataService : IDataService
     {
         //ISerializer serializer;
@@ -17,16 +21,26 @@ namespace HighscoreListener.DataServices
             //this.serializer = serializer;
         }
 
+        /// <param name="fileName">The name of the file without an extension</param>
+        /// <returns>returns the path to fileName</returns>
         string GetPathToFile(string fileName)
         {
             return Path.Combine(_dataPath, string.Concat(fileName, _fileExtension));
         }
 
+        /// <summary>
+        /// Save data to a specified file. Serializes data before saving.
+        /// </summary>
+        /// <param name="fileName">The name of the file where the data will be saved at. File extension not needed.</param>
+        /// <param name="data">The data to be saved.</param>
+        /// <param name="overwrite">Determines whether an existing file with the same name should be overwritten.</param>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="IOException"></exception>
         public void Save(string fileName, Game data, bool overwrite = true)
         {
-            if (fileName.EndsWith(".json"))
+            if (fileName.EndsWith(_fileExtension))
             {
-                fileName = fileName.Substring(0, fileName.Length - ".json".Length);
+                fileName = fileName.Substring(0, fileName.Length - _fileExtension.Length);
             }
             if (fileName.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
             {
@@ -41,11 +55,18 @@ namespace HighscoreListener.DataServices
             File.WriteAllText(fileLocation, JsonSerializer.Serialize(data)); //Or use serializer.Serialize(data) if one is provided
         }
 
-        public Game? Load(string fileName)
+        /// <summary>
+        /// Load data from a specified file.
+        /// </summary>
+        /// <param name="fileName">File data should be loaded from. File extension not needed.</param>
+        /// <returns>Returns deserialized data found at the specified location.</returns>
+        /// <exception cref="ArgumentException">Throws an argument exception if the filename includes forbidden characters.</exception>
+        /// <exception cref="FileNotFoundException">Throws a FileNotFound exception if the specified file does not exist.</exception>
+        public Game Load(string fileName)
         {
-            if (fileName.EndsWith(".json"))
+            if (fileName.EndsWith(_fileExtension))
             {
-                fileName = fileName.Substring(0, fileName.Length - ".json".Length);
+                fileName = fileName.Substring(0, fileName.Length - _fileExtension.Length);
             }
             if (fileName.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
             {
@@ -68,6 +89,12 @@ namespace HighscoreListener.DataServices
             }
         }
 
+        /// <summary>
+        /// Initialize by loading data stored in the default file.
+        /// If the default file cannot be found, creates new data.
+        /// </summary>
+        /// <param name="fileName">The name of the default file.</param>
+        /// <returns>Data from default file or new data.</returns>
         public Game FirstTimeLoad(string fileName)
         {
             if (fileName.EndsWith(".json"))
@@ -90,6 +117,10 @@ namespace HighscoreListener.DataServices
             }
         }
 
+        /// <summary>
+        /// Delete a file
+        /// </summary>
+        /// <param name="fileName">Name of file to be deleted. Do not include .json.</param>
         public void Delete(string fileName)
         {
             string fileLocation = GetPathToFile(fileName);
@@ -100,14 +131,22 @@ namespace HighscoreListener.DataServices
             }
         }
 
-        public void DeleteAll()
-        {
-            foreach (string filePath in Directory.GetFiles(_dataPath))
-            {
-                File.Delete(filePath);
-            }
-        }
+        // /// <summary>
+        // /// Delete every file in the default data directory.
+        // /// Careful, this deletes everything
+        // /// </summary>
+        // public void DeleteAll()
+        // {
+        //     foreach (string filePath in Directory.GetFiles(_dataPath))
+        //     {
+        //         File.Delete(filePath);
+        //     }
+        // }
 
+        /// <summary>
+        /// List all saved data files.
+        /// </summary>
+        /// <returns>Returns a list of all saved data files without their extensions.</returns>
         public IEnumerable<string> ListSaves()
         {
             foreach (string path in Directory.EnumerateFiles(_dataPath))
