@@ -14,14 +14,6 @@ public abstract class LoggerBase
         Info, Warning, Error
     }
     protected readonly string[] SeverityEmojis = ["💬", "⚠", "🛑"];
-
-    // protected readonly Dictionary<SeverityLevel, string> SeverityEmojis = new Dictionary<SeverityLevel, string>()
-    // {
-    //     {SeverityLevel.Info,"💬"},
-    //     {SeverityLevel.Warning,"⚠"},
-    //     {SeverityLevel.Error,"🛑"}
-    // };
-    
     protected SeverityLevel CurrentSeverity;
     public abstract void Log(string message, SeverityLevel severity);
 
