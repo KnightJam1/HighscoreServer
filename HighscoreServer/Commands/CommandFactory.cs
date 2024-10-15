@@ -21,10 +21,12 @@ public class CommandFactory
     /// </summary>
     private void RegisterCommands()
     {
+        // Get a list of all types of command that implement the ICommand interface
         var commandTypes = AppDomain.CurrentDomain.GetAssemblies()
             .SelectMany(a => a.GetTypes())
             .Where(t => typeof(ICommand).IsAssignableFrom(t) && !t.IsInterface);
 
+        // Create an instance of every command to populate the dictionary of commands
         foreach (var type in commandTypes)
         {
             var commandInstance = (ICommand)Activator.CreateInstance(type)!;
@@ -46,7 +48,6 @@ public class CommandFactory
         {
             return _commands[commandName.ToLower()];
         }
-        // Console.WriteLine("Unknown command");
         throw new InvalidOperationException($"Command '{commandName}' does not exist.");
     }
 }
