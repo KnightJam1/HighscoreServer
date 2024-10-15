@@ -1,4 +1,4 @@
-namespace HighscoreListener.DataServices
+namespace HighscoreServer.DataServices
 {
     /// <summary>
     /// Interface for a data service.

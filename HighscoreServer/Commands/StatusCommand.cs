@@ -1,4 +1,4 @@
-namespace HighscoreListener.Commands;
+namespace HighscoreServer.Commands;
 
 /// <summary>
 /// Return the status of the server.

@@ -1,5 +1,5 @@
 
-namespace HighscoreListener.Loggers;
+namespace HighscoreServer.Loggers;
 
 /// <summary>
 /// A logger that outputs logs to the terminal.

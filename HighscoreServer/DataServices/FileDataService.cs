@@ -1,7 +1,7 @@
 using System.Text.Json;
-using HighscoreListener.Loggers;
+using HighscoreServer.Loggers;
 
-namespace HighscoreListener.DataServices
+namespace HighscoreServer.DataServices
 {
     /// <summary>
     /// This class handles data by reading and writing to files.

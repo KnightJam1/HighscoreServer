@@ -1,6 +1,6 @@
-using HighscoreListener.Loggers;
+using HighscoreServer.Loggers;
 
-namespace HighscoreListener.Commands;
+namespace HighscoreServer.Commands;
 
 /// <summary>
 /// Load new data. Asks user if they wish to save the current data before loading the new data.

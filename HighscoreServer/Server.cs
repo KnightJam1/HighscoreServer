@@ -1,8 +1,8 @@
 using System.Net;
 using System.Text.Json;
-using HighscoreListener.Loggers;
+using HighscoreServer.Loggers;
 
-namespace HighscoreListener
+namespace HighscoreServer
 {
     /// <summary>
     /// A server that listens for requests from the client.

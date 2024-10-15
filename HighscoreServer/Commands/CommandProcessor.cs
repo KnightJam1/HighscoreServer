@@ -1,4 +1,4 @@
-namespace HighscoreListener.Commands;
+namespace HighscoreServer.Commands;
 
 /// <summary>
 /// Processor used to execute commands.

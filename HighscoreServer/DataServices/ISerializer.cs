@@ -1,4 +1,4 @@
-namespace HighscoreListener.DataServices
+namespace HighscoreServer.DataServices
 {
     /// <summary>
     /// A serializer to serialize or deserialize data so it can be saved to or loaded from a file.

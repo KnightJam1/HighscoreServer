@@ -1,4 +1,4 @@
-namespace HighscoreListener.Commands;
+namespace HighscoreServer.Commands;
 
 /// <summary>
 /// Factory class that automatically registers commands.

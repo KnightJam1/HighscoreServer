@@ -1,8 +1,8 @@
-﻿using HighscoreListener.Commands;
-using HighscoreListener.DataServices;
-using HighscoreListener.Loggers;
+﻿using HighscoreServer.Commands;
+using HighscoreServer.DataServices;
+using HighscoreServer.Loggers;
 
-namespace HighscoreListener;
+namespace HighscoreServer;
 
 static class Program
 {

@@ -1,4 +1,4 @@
-namespace HighscoreListener.Commands;
+namespace HighscoreServer.Commands;
 
 /// <summary>
 /// Request for the server to shut down.

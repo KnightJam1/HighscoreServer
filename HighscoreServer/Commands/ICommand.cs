@@ -1,4 +1,4 @@
-namespace HighscoreListener.Commands;
+namespace HighscoreServer.Commands;
 
 /// <summary>
 /// Interface for commands that can be called by the user.

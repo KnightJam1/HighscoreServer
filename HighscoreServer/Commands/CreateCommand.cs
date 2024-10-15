@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace HighscoreListener.Commands;
+namespace HighscoreServer.Commands;
 
 /// <summary>
 /// Command to create a new leaderboard to be added to a game.

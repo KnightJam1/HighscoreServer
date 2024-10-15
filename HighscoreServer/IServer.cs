@@ -1,6 +1,6 @@
 using System.Net;
 
-namespace HighscoreListener
+namespace HighscoreServer
 {
     /// <summary>
     /// Interface for servers.

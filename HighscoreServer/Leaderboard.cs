@@ -1,4 +1,4 @@
-namespace HighscoreListener;
+namespace HighscoreServer;
 
 /// <summary>
 /// A leaderboard with a list of entries, a format and a set of types to match the format.

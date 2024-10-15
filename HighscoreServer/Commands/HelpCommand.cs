@@ -1,4 +1,4 @@
-namespace HighscoreListener.Commands;
+namespace HighscoreServer.Commands;
 /// <summary>
 /// Displays the possible commands in the console.
 /// </summary>

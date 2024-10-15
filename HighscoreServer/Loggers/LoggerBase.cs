@@ -1,7 +1,7 @@
 
 using System.Diagnostics;
 
-namespace HighscoreListener.Loggers;
+namespace HighscoreServer.Loggers;
 
 /// <summary>
 /// Base abstract class for loggers. Use to create logs of important info.

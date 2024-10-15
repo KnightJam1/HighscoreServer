@@ -1,9 +1,9 @@
 using System.Diagnostics;
 using System.Text.Json;
-using HighscoreListener.DataServices;
-using HighscoreListener.Loggers;
+using HighscoreServer.DataServices;
+using HighscoreServer.Loggers;
 
-namespace HighscoreListener.Commands;
+namespace HighscoreServer.Commands;
 
 /// <summary>
 /// Contains all of the relevant and necessary objects that commands need access to.
