@@ -1,5 +1,8 @@
 namespace HighscoreListener.Commands;
 
+/// <summary>
+/// Return the status of the server.
+/// </summary>
 public class StatusCommand : ICommand
 {
     public string Name => "status";

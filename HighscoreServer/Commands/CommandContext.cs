@@ -5,6 +5,9 @@ using HighscoreListener.Loggers;
 
 namespace HighscoreListener.Commands;
 
+/// <summary>
+/// Contains all of the relevant and necessary objects that commands need access to.
+/// </summary>
 public class CommandContext
 {
     public readonly IDataService DataService;

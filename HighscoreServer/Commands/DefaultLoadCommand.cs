@@ -1,5 +1,9 @@
 namespace HighscoreListener.Commands;
 
+/// <summary>
+/// Command to run the initial load at the start of the program.
+/// Loads the default file, or new data if it cannot be found.
+/// </summary>
 public class DefaultLoadCommand : ICommand
 {
     public string Name => "defaultLoad";
@@ -7,6 +11,6 @@ public class DefaultLoadCommand : ICommand
     {
         // Load new data. Only assign data if the new data is not null.
         Game? newData = context.DataService.FirstTimeLoad(context.DefaultFileName);
-        context.UpdateData(newData!);
+        context.UpdateData(newData);
     }
 }

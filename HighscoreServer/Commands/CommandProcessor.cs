@@ -1,5 +1,8 @@
 namespace HighscoreListener.Commands;
 
+/// <summary>
+/// Processor used to execute commands.
+/// </summary>
 public class CommandProcessor
 {
     private readonly CommandFactory _factory;
@@ -9,6 +12,11 @@ public class CommandProcessor
         _factory = factory;
     }
 
+    /// <summary>
+    /// Execute the specified command.
+    /// </summary>
+    /// <param name="context">Context object that contains any objects a command might need.</param>
+    /// <param name="input">Commandline input containing the command name and any additional arguments.</param>
     public void ExecuteCommand(CommandContext context, string input)
     {
         var parts = input.Split(' ');

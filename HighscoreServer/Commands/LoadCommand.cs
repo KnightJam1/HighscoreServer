@@ -2,9 +2,15 @@ using HighscoreListener.Loggers;
 
 namespace HighscoreListener.Commands;
 
+/// <summary>
+/// Load new data. Asks user if they wish to save the current data before loading the new data.
+/// </summary>
 public class LoadCommand : ICommand
 {
     public string Name => "load";
+    
+    /// <param name="args">Name of the data to be loaded.
+    /// If using a filesystem it doesn't matter if the filename has an extension or not.</param>
     public void Execute(CommandContext context, string[] args)
     {
         Console.WriteLine("Do you want to save current data before loading new data? (yes/no)");

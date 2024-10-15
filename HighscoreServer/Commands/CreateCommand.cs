@@ -2,9 +2,14 @@ using System.Diagnostics;
 
 namespace HighscoreListener.Commands;
 
+/// <summary>
+/// Command to create a new leaderboard to be added to a game.
+/// </summary>
 public class CreateCommand : ICommand
 {
     public string Name => "create";
+    
+    /// <param name="args">Should be a string name and int16 number of entries. E.g. 'gamemode1 3'</param>
     public void Execute(CommandContext context, string[] args)
     {  
         // args[0] should be a name, args[1] should be the number of entries

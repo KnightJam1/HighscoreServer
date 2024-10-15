@@ -1,5 +1,8 @@
 namespace HighscoreListener.Commands;
 
+/// <summary>
+/// Factory class that automatically registers commands.
+/// </summary>
 public class CommandFactory
 {
     private readonly Dictionary<string, ICommand> _commands;
@@ -12,6 +15,10 @@ public class CommandFactory
         RegisterCommands();
     }
 
+    /// <summary>
+    /// Automatically registers commands.
+    /// Creates an enumerable list of all command types, creates an instance of each and puts them in a dictionary.
+    /// </summary>
     private void RegisterCommands()
     {
         var commandTypes = AppDomain.CurrentDomain.GetAssemblies()
@@ -27,6 +34,12 @@ public class CommandFactory
         }
     }
 
+    /// <summary>
+    /// Get a specific command
+    /// </summary>
+    /// <param name="commandName">Name of command</param>
+    /// <returns>Returns a command of specified name if it exists.</returns>
+    /// <exception cref="InvalidOperationException">Throws an exception if the named command doesn't exist.</exception>
     public ICommand GetCommand(string commandName)
     {
         if (_commands.ContainsKey(commandName.ToLower()))
