@@ -3,6 +3,10 @@ using System.Diagnostics;
 
 namespace HighscoreListener.Loggers;
 
+/// <summary>
+/// Base abstract class for loggers. Use to create logs of important info.
+/// Has three levels of severity, Info, Warning and Error.
+/// </summary>
 public abstract class LoggerBase
 {
     public enum SeverityLevel
