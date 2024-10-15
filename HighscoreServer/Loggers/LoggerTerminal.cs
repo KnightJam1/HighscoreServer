@@ -10,7 +10,7 @@ public class LoggerTerminal:LoggerBase
     {
         if (severity >= CurrentSeverity)
         {
-            Console.WriteLine($"{SeverityEmojis[severity]}: {message}");
+            Console.WriteLine($"{SeverityEmojis[(int)severity]}: {message}");
         }
     }
 }
