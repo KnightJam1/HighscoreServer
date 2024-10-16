@@ -29,11 +29,16 @@ public class CommandFactory
         // Create an instance of every command to populate the dictionary of commands
         foreach (var type in commandTypes)
         {
-            var commandInstance = (ICommand)Activator.CreateInstance(type)!;
-            if (commandInstance != null){
-                _commands[commandInstance.Name.ToLower()] = commandInstance;
+            if (type != typeof(HelpCommand))
+            {
+                var commandInstance = (ICommand)Activator.CreateInstance(type)!;
+                if (commandInstance != null){
+                    _commands[commandInstance.Name.ToLower()] = commandInstance;
+                }
             }
         }
+        // Help command is special and requires every other command to be created first
+        _commands["help"] = new HelpCommand(_commands.Values);
     }
 
     /// <summary>

@@ -7,9 +7,19 @@ public class HelpCommand : ICommand
     public string Name => "help";
     public int NumArgs => 0;
     public string HelpText => "Lists all help text.";
+    private readonly IEnumerable<ICommand> _commands;
+    
+    public HelpCommand(IEnumerable<ICommand> commands)
+    {
+        _commands = commands;
+    }
     
     public void Execute(CommandContext context, string[] args)
     {
-        Console.WriteLine("Console commands:\n\tshutdown\t\t- close the server.\n\tstatus\t\t\t- see the status of the server.\n\tload filename.json\t- load the specified file.");
+        Console.WriteLine("Available commands:");
+        foreach (var command in _commands)
+        {
+            Console.WriteLine($"{command.Name} (Args: {command.NumArgs}): {command.HelpText}");
+        }
     }
 }
