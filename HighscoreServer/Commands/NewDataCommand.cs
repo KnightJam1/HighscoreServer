@@ -1,11 +1,15 @@
 namespace HighscoreServer.Commands;
 
+/// <summary>
+/// Creates new empty data.
+/// </summary>
 public class NewDataCommand : ICommand
 {
     public string Name => "new";
     public int NumArgs => 0;
     public string HelpText => "Create a new set of leaderboards.";
-
+    
+    /// <exception cref="ArgumentException">Throws an exception if arguments are given.</exception>
     public void Execute(CommandContext context, string[] args)
     {
         // Check for a valid number of arguments.
