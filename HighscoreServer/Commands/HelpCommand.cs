@@ -16,6 +16,12 @@ public class HelpCommand : ICommand
     
     public void Execute(CommandContext context, string[] args)
     {
+        // Check for a valid number of arguments.
+        if (args.Length != NumArgs)
+        {
+            throw new ArgumentException($"Invalid number of arguments. Expected {NumArgs} but got {args.Length}.");
+        }
+        
         Console.WriteLine("Available commands:");
         foreach (var command in _commands)
         {
