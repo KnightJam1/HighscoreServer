@@ -16,25 +16,22 @@ public class Leaderboard
         DataTypeNames = dataTypeNames;
     }
 
-    public bool AddEntry(string[] entry, out string message)
+    public bool AddEntry(string[] entry)
     {
         if (entry.Length != Format.Count)
         {
-            message = $"Invalid entry format. Expected {Format.Count} values: {string.Join(", ", Format)}";
-            return false;
+            throw new ArgumentException($"Invalid entry format. Expected {Format.Count} values: {string.Join(", ", Format)}");
         }
 
         for (int i = 0; i < entry.Length; i++)
         {
             if (!ValidateType(entry[i], DataTypeNames[i]))
             {
-                message = $"Invalid type for '{Format[i]}'. Expected {DataTypeNames[i]}.";
-                return false;
+                throw new ArgumentException($"Invalid type for '{Format[i]}'. Expected {DataTypeNames[i]}.");
             }
         }
 
         Entries.Add(entry);
-        message = "Entry added successfully.";
         return true;
     }
 

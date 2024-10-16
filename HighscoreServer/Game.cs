@@ -16,16 +16,17 @@ public class Game
         // else throw an exception.
     }
 
-    public bool AddEntry(string gameMode, string[] entry, out string message)
+    public bool AddEntry(string gameMode, string[] entry)
     {
         if (Leaderboards.ContainsKey(gameMode))
         {
-            return Leaderboards[gameMode].AddEntry(entry, out message);
+            return Leaderboards[gameMode].AddEntry(entry);
         }
         else
         {
             // throw an exception instead
-            message = $"Leaderboard for game mode '{gameMode}' does not exist.";
+            //message = $"Leaderboard for game mode '{gameMode}' does not exist.";
+            throw new Exception($"Leaderboard for game mode '{gameMode}' does not exist.");
             return false;
         }
     }

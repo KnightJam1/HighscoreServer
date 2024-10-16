@@ -125,18 +125,19 @@ namespace HighscoreServer
                         var requestBody = await reader.ReadToEndAsync();
                         var entry = JsonSerializer.Deserialize<KeyValuePair<string, string[]>>(requestBody);
 
-                        if (_data.AddEntry(entry.Key, entry.Value, out string message))
+                        try // Switch to a try/catch
                         {
+                            _data.AddEntry(entry.Key, entry.Value);
                             context.Response.StatusCode = (int)HttpStatusCode.OK;
-                            var response = JsonSerializer.Serialize(new { Message = message });
+                            var response = JsonSerializer.Serialize(new { Message = "Entry added successfully." });
                             byte[] buffer = System.Text.Encoding.UTF8.GetBytes(response);
                             context.Response.ContentLength64 = buffer.Length;
                             await context.Response.OutputStream.WriteAsync(buffer, 0, buffer.Length);
                         }
-                        else
+                        catch (Exception ex)
                         {
                             context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                            var response = JsonSerializer.Serialize(new { Error = message });
+                            var response = JsonSerializer.Serialize(new { Error = ex.Message });
                             byte[] buffer = System.Text.Encoding.UTF8.GetBytes(response);
                             context.Response.ContentLength64 = buffer.Length;
                             await context.Response.OutputStream.WriteAsync(buffer, 0, buffer.Length);
