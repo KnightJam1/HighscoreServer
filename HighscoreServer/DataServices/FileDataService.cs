@@ -25,6 +25,10 @@ namespace HighscoreServer.DataServices
         /// <returns>returns the path to fileName</returns>
         string GetPathToFile(string fileName)
         {
+            if (fileName.EndsWith(_fileExtension))
+            {
+                fileName = fileName.Substring(0, fileName.Length - _fileExtension.Length);
+            }
             return Path.Combine(_dataPath, string.Concat(fileName, _fileExtension));
         }
 
@@ -38,10 +42,6 @@ namespace HighscoreServer.DataServices
         /// <exception cref="IOException"></exception>
         public void Save(string fileName, Game data, bool overwrite = true)
         {
-            if (fileName.EndsWith(_fileExtension))
-            {
-                fileName = fileName.Substring(0, fileName.Length - _fileExtension.Length);
-            }
             if (fileName.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
             {
                 throw new ArgumentException("Filename contains invalid characters.");
@@ -64,16 +64,12 @@ namespace HighscoreServer.DataServices
         /// <exception cref="FileNotFoundException">Throws a FileNotFound exception if the specified file does not exist.</exception>
         public Game Load(string fileName)
         {
-            if (fileName.EndsWith(_fileExtension))
-            {
-                fileName = fileName.Substring(0, fileName.Length - _fileExtension.Length);
-            }
             if (fileName.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
             {
                 throw new ArgumentException("Filename contains invalid characters.");
             }
+            
             string fileLocation = GetPathToFile(fileName);
-
             if (!File.Exists(fileLocation))
             {
                 throw new FileNotFoundException($"Could not find the file '{fileName}' as it does not exist.");
@@ -95,10 +91,6 @@ namespace HighscoreServer.DataServices
         /// <returns>Data from default file or new data.</returns>
         public Game InitialLoad(string fileName)
         {
-            if (fileName.EndsWith(".json"))
-            {
-                fileName = fileName.Substring(0, fileName.Length - ".json".Length);
-            }
             string fileLocation = GetPathToFile(fileName);
 
             if (!File.Exists(fileLocation))
@@ -126,6 +118,10 @@ namespace HighscoreServer.DataServices
             if (File.Exists(fileLocation))
             {
                 File.Delete(fileLocation);
+            }
+            else
+            {
+                throw new FileNotFoundException($"Could not find the file '{fileName}' as it does not exist.");
             }
         }
 

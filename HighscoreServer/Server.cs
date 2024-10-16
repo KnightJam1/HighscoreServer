@@ -64,6 +64,18 @@ namespace HighscoreServer
                 Logger.Log($"{ex.GetType()}: {ex.Message}", LoggerBase.SeverityLevel.Error);
             }
         }
+
+        public void DeleteData(string fileName)
+        {
+            try
+            {
+                DataService.Delete(fileName);
+            }
+            catch (Exception ex)
+            {
+                Logger.Log($"{ex.GetType()}: {ex.Message}", LoggerBase.SeverityLevel.Error);
+            }
+        }
         
         public async Task Start()
         {
