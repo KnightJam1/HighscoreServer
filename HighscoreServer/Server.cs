@@ -53,6 +53,11 @@ namespace HighscoreServer
             }
         }
 
+        public void NewData()
+        {
+            _data = new Game();
+        }
+
         public void SaveData(string saveFileName = DefaultFileName)
         {
             try
