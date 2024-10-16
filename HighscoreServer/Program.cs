@@ -47,7 +47,6 @@ static class Program
 
             if (_shutdownRequested)
             {
-                _server.Stop();
                 break;
             }
         }
