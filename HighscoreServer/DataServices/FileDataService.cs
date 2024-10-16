@@ -53,6 +53,7 @@ namespace HighscoreServer.DataServices
             }
 
             File.WriteAllText(fileLocation, JsonSerializer.Serialize(data)); //Or use serializer.Serialize(data) if one is provided
+            Console.WriteLine($"Data saved as {fileName}{_fileExtension}.");
         }
 
         /// <summary>
