@@ -9,6 +9,8 @@ public interface ICommand
     /// What the command should be recognised as in the terminal.
     /// </summary>
     string Name { get; }
+    int NumArgs { get; }
+    string HelpText { get; }
     
     /// <param name="context">Context object that contains any objects a command might need, such as the data service.</param>
     /// <param name="args">Some commands require extra arguments from the command line.

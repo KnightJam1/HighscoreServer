@@ -8,6 +8,8 @@ namespace HighscoreServer.Commands;
 public class CreateCommand : ICommand
 {
     public string Name => "create";
+    public int NumArgs => 2;
+    public string HelpText => "Create a new leaderboard. Requires 2 arguments, name and number of items in an entry. E.g. create gamemode1 3.";
     
     /// <param name="args">Should be a string name and int16 number of entries. E.g. 'gamemode1 3'</param>
     public void Execute(CommandContext context, string[] args)

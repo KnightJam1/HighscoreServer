@@ -5,6 +5,8 @@ namespace HighscoreServer.Commands;
 public class HelpCommand : ICommand
 {
     public string Name => "help";
+    public int NumArgs => 0;
+    public string HelpText => "Lists all help text.";
     
     public void Execute(CommandContext context, string[] args)
     {

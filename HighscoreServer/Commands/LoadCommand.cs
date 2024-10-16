@@ -8,6 +8,8 @@ namespace HighscoreServer.Commands;
 public class LoadCommand : ICommand
 {
     public string Name => "load";
+    public int NumArgs => 1;
+    public string HelpText => "Loads a set of leaderboards. Requires the name of the saved data, with or without an extension. E.g.: Load savedLeaderboards.";
 
     /// <param name="args">Name of the data to be loaded.
     /// If using a filesystem it doesn't matter if the filename has an extension or not.</param>
