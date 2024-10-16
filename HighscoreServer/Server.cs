@@ -15,6 +15,7 @@ namespace HighscoreServer
         static readonly LoggerTerminal Logger = new LoggerTerminal();
         
         private bool _isRunning;
+        private int _activeRequests;
         private Game _data;
         
         static readonly IDataService DataService = new FileDataService("SavedData",".json");
@@ -73,9 +74,14 @@ namespace HighscoreServer
             await ListenAsync();
         }
 
-        public void Stop()
+        public void RequestStop()
         {
             _isRunning = false;
+            Logger.Log("Waiting for active requests to stop...");
+            while (_activeRequests > 0)
+            {
+                Thread.Sleep(100); // Small delay to prevent busy-waiting
+            }
             SaveData();
             Logger.Log("Saved current data to data.json.");
             Logger.Log("Shutting down the server...");
@@ -90,9 +96,10 @@ namespace HighscoreServer
         {
             try
             {
-                while (!Program.IsShuttingDown())
+                while (_isRunning)
                 {
                     var listenContext = await _listener.GetContextAsync();
+                    Interlocked.Increment(ref _activeRequests);
                     _ = Task.Run(() => HandleRequest(listenContext));
                 }
             }
@@ -108,46 +115,53 @@ namespace HighscoreServer
         /// <param name="context">The context of the request.</param>
         public async Task HandleRequest(HttpListenerContext context)
         {
-            switch (context.Request.HttpMethod)
+            try
             {
-                case "POST":
+                switch (context.Request.HttpMethod)
                 {
-                    using var reader = new StreamReader(context.Request.InputStream);
-                    var requestBody = await reader.ReadToEndAsync();
-                    var entry = JsonSerializer.Deserialize<KeyValuePair<string, string[]>>(requestBody);
-
-                    if (_data.AddEntry(entry.Key, entry.Value, out string message))
+                    case "POST":
                     {
-                        context.Response.StatusCode = (int)HttpStatusCode.OK;
-                        var response = JsonSerializer.Serialize(new { Message = message });
-                        byte[] buffer = System.Text.Encoding.UTF8.GetBytes(response);
+                        using var reader = new StreamReader(context.Request.InputStream);
+                        var requestBody = await reader.ReadToEndAsync();
+                        var entry = JsonSerializer.Deserialize<KeyValuePair<string, string[]>>(requestBody);
+
+                        if (_data.AddEntry(entry.Key, entry.Value, out string message))
+                        {
+                            context.Response.StatusCode = (int)HttpStatusCode.OK;
+                            var response = JsonSerializer.Serialize(new { Message = message });
+                            byte[] buffer = System.Text.Encoding.UTF8.GetBytes(response);
+                            context.Response.ContentLength64 = buffer.Length;
+                            await context.Response.OutputStream.WriteAsync(buffer, 0, buffer.Length);
+                        }
+                        else
+                        {
+                            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                            var response = JsonSerializer.Serialize(new { Error = message });
+                            byte[] buffer = System.Text.Encoding.UTF8.GetBytes(response);
+                            context.Response.ContentLength64 = buffer.Length;
+                            await context.Response.OutputStream.WriteAsync(buffer, 0, buffer.Length);
+                        }
+
+                        break;
+                    }
+                    case "GET":
+                    {
+                        var responseString = JsonSerializer.Serialize(_data.GetFormats());
+                        byte[] buffer = System.Text.Encoding.UTF8.GetBytes(responseString);
                         context.Response.ContentLength64 = buffer.Length;
-                        await context.Response.OutputStream.WriteAsync(buffer, 0, buffer.Length);
-                    }
-                    else
-                    {
-                        context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                        var response = JsonSerializer.Serialize(new { Error = message });
-                        byte[] buffer = System.Text.Encoding.UTF8.GetBytes(response);
-                        context.Response.ContentLength64 = buffer.Length;
-                        await context.Response.OutputStream.WriteAsync(buffer, 0, buffer.Length);
-                    }
 
-                    break;
+                        using (var output = context.Response.OutputStream)
+                        {
+                            await output.WriteAsync(buffer, 0, buffer.Length);
+                        }
+
+                        break;
+                    }
                 }
-                case "GET":
-                {
-                    var responseString = JsonSerializer.Serialize(_data.GetFormats());
-                    byte[] buffer = System.Text.Encoding.UTF8.GetBytes(responseString);
-                    context.Response.ContentLength64 = buffer.Length;
-
-                    using (var output = context.Response.OutputStream)
-                    {
-                        await output.WriteAsync(buffer, 0, buffer.Length);
-                    }
-
-                    break;
-                }
+            }
+            finally
+            {
+                Interlocked.Decrement(ref _activeRequests);
             }
         }
     }

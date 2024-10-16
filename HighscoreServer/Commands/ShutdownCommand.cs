@@ -16,6 +16,6 @@ public class ShutdownCommand : ICommand
             throw new ArgumentException($"Invalid number of arguments. Expected {NumArgs} but got {args.Length}.");
         }
         
-        context.Server.Stop();
+        context.Server.RequestStop();
     }
 }
