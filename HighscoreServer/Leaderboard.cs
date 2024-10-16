@@ -6,9 +6,9 @@ namespace HighscoreServer;
 /// </summary>
 public class Leaderboard
 {
-    private List<string[]> Entries { get; set; } = new List<string[]>();
+    public List<string[]> Entries { get; set; } = new List<string[]>();
     public List<string> Format { get; private set; }
-    private List<string> DataTypeNames { get; set; }
+    public List<string> DataTypeNames { get; set; }
 
     public Leaderboard(List<string> format, List<string> dataTypeNames)
     {
