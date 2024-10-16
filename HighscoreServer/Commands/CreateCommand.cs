@@ -15,9 +15,9 @@ public class CreateCommand : ICommand
     public void Execute(CommandContext context, string[] args)
     {
         // Check for a valid number of arguments.
-        if (args.Length != 2)
+        if (args.Length != NumArgs)
         {
-            throw new ArgumentException("Incorrect number of arguments.");
+            throw new ArgumentException($"Invalid number of arguments. Expected {NumArgs} but got {args.Length}.");
         }
         
         // Check to see if args[0] is valid.

@@ -15,6 +15,12 @@ public class LoadCommand : ICommand
     /// If using a filesystem it doesn't matter if the filename has an extension or not.</param>
     public void Execute(CommandContext context, string[] args)
     {
+        // Check for a valid number of arguments.
+        if (args.Length != NumArgs)
+        {
+            throw new ArgumentException($"Invalid number of arguments. Expected {NumArgs} but got {args.Length}.");
+        }
+        
         Console.WriteLine("Do you want to save current data before loading new data? (yes/no)");
         string response = Console.ReadLine() ?? "yes";
         if (response.Trim().ToLower() == "yes")
