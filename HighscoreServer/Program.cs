@@ -7,8 +7,8 @@ namespace HighscoreServer;
 static class Program
 {
     // Unnecessary. Move to server.
-    static readonly string DefaultDataDirectory = "SavedData";
-    static readonly string DefaultFileName = "data";
+    // static readonly string DefaultDataDirectory = "SavedData";
+    // static readonly string DefaultFileName = "data";
     
     // Necessary static property
     private static bool _shutdownRequested = false;
@@ -29,8 +29,8 @@ static class Program
         _ = _server.Start();
 
         // Load data when the server starts
-        CommandContext context = new CommandContext(DefaultDataDirectory,DefaultFileName,_server,Logger);
-        CommandProcessor.ExecuteCommand(context, "defaultLoad");
+        CommandContext context = new CommandContext(_server,Logger);
+        CommandProcessor.ExecuteCommand(context, "initialize");
 
         // Start the command handling loop
         while (true)

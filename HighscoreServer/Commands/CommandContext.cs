@@ -10,15 +10,11 @@ namespace HighscoreServer.Commands;
 /// </summary>
 public class CommandContext
 {
-    public string DefaultDataDirectory;
-    public readonly string DefaultFileName;
     public readonly Server Server;
     public readonly LoggerBase Logger;
 
-    public CommandContext(string defaultDataDirectory, string defaultFileName, Server server, LoggerBase logger)
+    public CommandContext(Server server, LoggerBase logger)
     {
-        this.DefaultDataDirectory = defaultDataDirectory;
-        this.DefaultFileName = defaultFileName;
         this.Server = server;
         this.Logger = logger;
     }

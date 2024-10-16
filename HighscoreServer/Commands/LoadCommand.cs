@@ -17,7 +17,7 @@ public class LoadCommand : ICommand
         string response = Console.ReadLine() ?? "yes";
         if (response.Trim().ToLower() == "yes")
         {
-            context.Server.SaveData(context.DefaultFileName); // Add functionality to recieve a response from the server about success
+            context.Server.SaveData(); // Add functionality to recieve a response from the server about success
         }
         // Load new data. Only assign data if the new data is not null.
         context.Server.LoadData(args[0]);

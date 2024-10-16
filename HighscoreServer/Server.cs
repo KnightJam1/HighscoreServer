@@ -12,10 +12,14 @@ namespace HighscoreServer
     public class Server : IServer
     {
         private readonly HttpListener _listener;
+        static readonly LoggerTerminal Logger = new LoggerTerminal();
+        
         private bool _isRunning;
         private Game _data;
-        static readonly LoggerTerminal Logger = new LoggerTerminal();
+        
         static readonly IDataService DataService = new FileDataService("SavedData",".json");
+        private const string DefaultDataDirectory = "SavedData";
+        private const string DefaultFileName = "data";
 
         public Server(string port)
         {
@@ -48,11 +52,11 @@ namespace HighscoreServer
             }
         }
 
-        public void SaveData(string savePath)
+        public void SaveData(string saveFileName = DefaultFileName)
         {
             try
             {
-                DataService.Save(savePath, _data);
+                DataService.Save(saveFileName, _data);
             }
             catch (Exception ex)
             {
@@ -71,7 +75,7 @@ namespace HighscoreServer
         public void Stop()
         {
             _isRunning = false;
-            SaveData("data");
+            SaveData();
             Logger.Log("Saved current data to data.json.");
             Logger.Log("Shutting down the server...");
             _listener.Stop();
