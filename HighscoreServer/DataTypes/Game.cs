@@ -1,4 +1,4 @@
-namespace HighscoreServer;
+namespace HighscoreServer.DataTypes;
 
 /// <summary>
 /// A data type that represents a dictionary of leaderboards, keyed by a string representing the name of the leaderboard.

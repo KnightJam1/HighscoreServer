@@ -1,4 +1,5 @@
 using System.Text.Json;
+using HighscoreServer.DataTypes;
 using HighscoreServer.Loggers;
 
 namespace HighscoreServer.DataServices

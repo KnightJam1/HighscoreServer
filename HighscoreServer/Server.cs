@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text.Json;
 using HighscoreServer.DataServices;
+using HighscoreServer.DataTypes;
 using HighscoreServer.Loggers;
 
 namespace HighscoreServer

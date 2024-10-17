@@ -1,3 +1,5 @@
+using HighscoreServer.DataTypes;
+
 namespace HighscoreServer.DataServices
 {
     /// <summary>
