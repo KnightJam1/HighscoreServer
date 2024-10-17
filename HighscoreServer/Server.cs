@@ -1,4 +1,6 @@
 using System.Net;
+using System.Net.WebSockets;
+using System.Text;
 using System.Text.Json;
 using HighscoreServer.DataServices;
 using HighscoreServer.DataTypes;
@@ -29,7 +31,7 @@ namespace HighscoreServer
             _data = new Game();
             _listener = new HttpListener();
             _listener.Prefixes.Add($"http://localhost:{port}/");
-            _semaphore = new SemaphoreSlim(1, 1); // Allow only one request at a time
+            _semaphore = new SemaphoreSlim(1, 1); // Allows only one request at a time
         }
 
         public void AddLeaderboard(string name, List<string> format, List<string> dataTypeNames, int maxEntries)
@@ -90,7 +92,7 @@ namespace HighscoreServer
             _isRunning = true;
             _listener.Start();
             Logger.Log("Now Listening...");
-            Logger.Log("Type 'shutdown' to stop the server. Type 'help' to see a list of commands"); // Consider listing prefixes
+            Logger.Log("Type 'shutdown' to stop the server. Type 'help' to see a list of commands");
             await ListenAsync();
         }
 
@@ -146,7 +148,7 @@ namespace HighscoreServer
                         var requestBody = await reader.ReadToEndAsync();
                         var entry = JsonSerializer.Deserialize<KeyValuePair<string, string[]>>(requestBody);
 
-                        try // Switch to a try/catch
+                        try
                         {
                             _data.AddEntry(entry.Key, entry.Value);
                             context.Response.StatusCode = (int)HttpStatusCode.OK;
@@ -185,6 +187,53 @@ namespace HighscoreServer
             {
                 Interlocked.Decrement(ref _activeRequests);
                 _semaphore.Release();
+            }
+        }
+        private async Task HandleWebSocketAsync(HttpListenerContext context)
+        {
+            var wsContext = await context.AcceptWebSocketAsync(subProtocol: null);
+            var webSocket = wsContext.WebSocket;
+            var buffer = new byte[1024 * 4];
+
+            while (webSocket.State == WebSocketState.Open)
+            {
+                await _semaphore.WaitAsync();
+                try
+                {
+                    var result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+                    if (result.MessageType == WebSocketMessageType.Text)
+                    {
+                        var message = Encoding.UTF8.GetString(buffer, 0, result.Count);
+                        var parts = message.Split(' ');
+
+                        if (parts[0] == "add" && parts.Length > 3)
+                        {
+                            // Parse and add new entry
+                            var newEntry = parts[1..]; // Skip "add"
+                            //AddEntry(sortedList, newEntry, maxCapacity);
+                            await webSocket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes("Entry added")), WebSocketMessageType.Text, true, CancellationToken.None);
+                        }
+                        else if (parts[0] == "get" && parts.Length > 1 && int.TryParse(parts[1], out int n))
+                        {
+                            // Get top N entries
+                            //var topN = GetTopN(sortedList, n);
+                            //var jsonData = JsonSerializer.Serialize(topN);
+                            //await webSocket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(jsonData)), WebSocketMessageType.Text, true, CancellationToken.None);
+                        }
+                        else
+                        {
+                            await webSocket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes("Invalid command")), WebSocketMessageType.Text, true, CancellationToken.None);
+                        }
+                    }
+                    else if (result.MessageType == WebSocketMessageType.Close)
+                    {
+                        await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", CancellationToken.None);
+                    }
+                }
+                finally
+                {
+                    _semaphore.Release();
+                }
             }
         }
     }
