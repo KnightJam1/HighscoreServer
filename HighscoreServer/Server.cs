@@ -12,6 +12,7 @@ namespace HighscoreServer
     public class Server : IServer
     {
         private readonly HttpListener _listener;
+        private readonly SemaphoreSlim _semaphore;
         static readonly LoggerTerminal Logger = new LoggerTerminal();
         
         private bool _isRunning;
@@ -27,6 +28,7 @@ namespace HighscoreServer
             _data = new Game();
             _listener = new HttpListener();
             _listener.Prefixes.Add($"http://localhost:{port}/");
+            _semaphore = new SemaphoreSlim(1, 1); // Allow only one request at a time
         }
 
         public void AddLeaderboard(string name, List<string> format, List<string> dataTypeNames, int maxEntries)
@@ -132,6 +134,7 @@ namespace HighscoreServer
         /// <param name="context">The context of the request.</param>
         public async Task HandleRequest(HttpListenerContext context)
         {
+            await _semaphore.WaitAsync();
             try
             {
                 switch (context.Request.HttpMethod)
@@ -180,6 +183,7 @@ namespace HighscoreServer
             finally
             {
                 Interlocked.Decrement(ref _activeRequests);
+                _semaphore.Release();
             }
         }
     }
