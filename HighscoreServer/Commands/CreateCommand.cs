@@ -8,10 +8,10 @@ namespace HighscoreServer.Commands;
 public class CreateCommand : ICommand
 {
     public string Name => "create";
-    public int NumArgs => 2;
-    public string HelpText => "Create a new leaderboard. Requires a name and number of items in an entry. E.g. create gamemode1 3.";
+    public int NumArgs => 3;
+    public string HelpText => "Create a new leaderboard. Requires name, items in entry, max entries. E.g. create gamemode1 3 1000.";
     
-    /// <param name="args">Should be a string name and int16 number of entries. E.g. 'gamemode1 3'</param>
+    /// <param name="args">Arguments should come in the form name, items in entry, max entries. E.g. 'gamemode1 3 1000'</param>
     public void Execute(CommandContext context, string[] args)
     {
         // Check for a valid number of arguments.
@@ -40,6 +40,21 @@ public class CreateCommand : ICommand
         {
             throw new ArgumentException("Cannot have fewer than one items in an entry.");
         }
+        
+        // Check to see if args[2] is valid.
+        try
+        {
+            int.Parse(args[2]);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            throw new ArgumentException("Maximum number of entries must be an integer.");
+        }
+        if (int.Parse(args[2]) < 1)
+        {
+            throw new ArgumentException("Cannot have fewer than one entry in the leaderboard.");
+        }
 
         List<string> format = new List<string>();
         List<string> dataTypeNames = new List<string>();
@@ -66,7 +81,7 @@ public class CreateCommand : ICommand
             format.Add(nameInput);
         }
 
-        context.Server.AddLeaderboard(args[0], format, dataTypeNames);
+        context.Server.AddLeaderboard(args[0], format, dataTypeNames,int.Parse(args[2]));
         Console.WriteLine($"Leaderboard '{args[0]}' created with format: {string.Join(", ", format)}");
     }
 }

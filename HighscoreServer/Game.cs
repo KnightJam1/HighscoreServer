@@ -7,11 +7,11 @@ public class Game
 {
     public Dictionary<string, SortedLeaderboard> Leaderboards { get; init; } = new Dictionary<string, SortedLeaderboard>();
 
-    public void AddLeaderboard(string name, List<string> format, List<string> dataTypeNames)
+    public void AddLeaderboard(string name, List<string> format, List<string> dataTypeNames, int maxEntries)
     {
         if (!Leaderboards.ContainsKey(name))
         {
-            Leaderboards[name] = new SortedLeaderboard(format, dataTypeNames, 1000);
+            Leaderboards[name] = new SortedLeaderboard(format, dataTypeNames, maxEntries);
         }
         // else throw an exception.
     }

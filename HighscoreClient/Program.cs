@@ -18,12 +18,15 @@ class Program
             Console.WriteLine("Formats: " + formatsResponseBody);
 
             // Add a single entry
-            var entry = new KeyValuePair<string, string[]>("gamemode1", new string[] { "Josh", "1000", "2024-10-01"});
-            var jsonContent = new StringContent(JsonSerializer.Serialize(entry), Encoding.UTF8, "application/json");
-            HttpResponseMessage postResponse = await client.PostAsync("http://localhost:8080/", jsonContent);
-            postResponse.EnsureSuccessStatusCode();
-            string postResponseBody = await postResponse.Content.ReadAsStringAsync();
-            Console.WriteLine("Post Response: " + postResponseBody);
+            for (int i = 0; i <= 1000; i++)
+            {
+                var entry = new KeyValuePair<string, string[]>("gamemode1", new string[] { $"{i}", "Josh", "2024-10-01"});
+                var jsonContent = new StringContent(JsonSerializer.Serialize(entry), Encoding.UTF8, "application/json");
+                HttpResponseMessage postResponse = await client.PostAsync("http://localhost:8080/", jsonContent);
+                postResponse.EnsureSuccessStatusCode();
+                string postResponseBody = await postResponse.Content.ReadAsStringAsync();
+                Console.WriteLine($"Item {i}: Post Response: {postResponseBody}");
+            }
         }
         catch (HttpRequestException e)
         {

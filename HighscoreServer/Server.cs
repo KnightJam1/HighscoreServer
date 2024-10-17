@@ -29,9 +29,9 @@ namespace HighscoreServer
             _listener.Prefixes.Add($"http://localhost:{port}/");
         }
 
-        public void AddLeaderboard(string name, List<string> format, List<string> dataTypeNames)
+        public void AddLeaderboard(string name, List<string> format, List<string> dataTypeNames, int maxEntries)
         {
-            _data.AddLeaderboard(name, format, dataTypeNames);
+            _data.AddLeaderboard(name, format, dataTypeNames, maxEntries);
         }
         
         public void InitialLoad() // Move functionality to LoadData? Pass an isInitial flag maybe
