@@ -8,7 +8,7 @@ public class SortedLeaderboard
 {
     // These must remain public for serialization to function properly.
     // Do not make private.
-    public SortedSet<string[]> Entries { get; set; } = new SortedSet<string[]>(new FirstValueComparer());
+    public List<string[]> Entries { get; set; } = new List<string[]>();
     public List<string> Format { get; private set; }
     public List<string> DataTypeNames { get; set; }
     public int MaxEntries { get; set; }
@@ -35,25 +35,15 @@ public class SortedLeaderboard
             }
         }
 
-        if (Entries.Count >= MaxEntries)
+        int index = Entries.BinarySearch(entry, new FirstValueComparer());
+        if (index < 0) index = ~index; // Get the insertion point
+        Entries.Insert(index, entry);
+
+        if (Entries.Count > MaxEntries)
         {
-            if (new FirstValueComparer().Compare(entry, Entries.Min) > 0)
-            {
-                Entries.Remove(Entries.Min);
-                Entries.Add(entry);
-                return true;
-            }
-            else
-            {
-                //Inform the client that no entry was added.
-                return false;
-            }
+            Entries.RemoveAt(0); // Remove the lowest
         }
-        else
-        {
-            Entries.Add(entry);
-            return true;
-        }
+        return true;
     }
 
     private bool ValidateType(string value, string typeName)
@@ -79,20 +69,6 @@ public class SortedLeaderboard
     
     public List<string[]> GetTopN( int n)
     {
-        var topN = new List<string[]>();
-        foreach (var entry in Entries.Reverse())
-        {
-            if (topN.Count >= n)
-            {
-                break;
-            }
-            topN.Add(entry);
-        }
-        return topN;
-    }
-
-    private void RemoveLowest()
-    {
-        Entries.Remove(Entries.Min);
+        return Entries.OrderByDescending(x => int.Parse(x[0])).Take(n).ToList();
     }
 }
