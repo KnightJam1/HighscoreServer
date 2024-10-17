@@ -5,13 +5,13 @@ namespace HighscoreServer;
 /// </summary>
 public class Game
 {
-    public Dictionary<string, Leaderboard> Leaderboards { get; init; } = new Dictionary<string, Leaderboard>();
+    public Dictionary<string, SortedLeaderboard> Leaderboards { get; init; } = new Dictionary<string, SortedLeaderboard>();
 
     public void AddLeaderboard(string name, List<string> format, List<string> dataTypeNames)
     {
         if (!Leaderboards.ContainsKey(name))
         {
-            Leaderboards[name] = new Leaderboard(format, dataTypeNames);
+            Leaderboards[name] = new SortedLeaderboard(format, dataTypeNames, 1000);
         }
         // else throw an exception.
     }
