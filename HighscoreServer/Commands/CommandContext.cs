@@ -10,10 +10,10 @@ namespace HighscoreServer.Commands;
 /// </summary>
 public class CommandContext
 {
-    public readonly Server Server;
+    public readonly WebsocketServer Server;
     public readonly LoggerBase Logger;
 
-    public CommandContext(Server server, LoggerBase logger)
+    public CommandContext(WebsocketServer server, LoggerBase logger)
     {
         this.Server = server;
         this.Logger = logger;

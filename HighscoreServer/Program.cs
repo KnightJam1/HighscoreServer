@@ -14,7 +14,7 @@ static class Program
     private static bool _shutdownRequested = false;
 
     // Passed into context.
-    static Server _server = new Server("8080");
+    static WebsocketServer _server = new WebsocketServer("8080");
     static readonly LoggerTerminal Logger = new LoggerTerminal();
 
     // Used only in main.

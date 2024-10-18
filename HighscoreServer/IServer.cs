@@ -11,7 +11,7 @@ namespace HighscoreServer
         Task ListenAsync();
 
         //Handle request
-        Task HandleRequest(HttpListenerContext context);
+        //Task HandleRequest(HttpListenerContext context);
 
     }
 }

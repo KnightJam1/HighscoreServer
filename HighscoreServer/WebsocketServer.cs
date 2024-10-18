@@ -9,10 +9,10 @@ using HighscoreServer.Loggers;
 namespace HighscoreServer
 {
     /// <summary>
-    /// A server that listens for requests from the client.
+    /// A server that communicates with the client over a websocket.
     /// Handles GET and POST commands.
     /// </summary>
-    public class Server : IServer
+    public class WebsocketServer : IServer
     {
         private readonly HttpListener _listener;
         private readonly SemaphoreSlim _semaphore;
@@ -25,12 +25,15 @@ namespace HighscoreServer
         static readonly IDataService DataService = new FileDataService("SavedData",".json");
         private const string DefaultDataDirectory = "SavedData";
         private const string DefaultFileName = "data";
+        
+        // Secret Int here. Must change. Make sure that the secret is the same for client and server.
+        private const int Secret = 1;
 
-        public Server(string port)
+        public WebsocketServer(string port)
         {
             _data = new Game();
             _listener = new HttpListener();
-            _listener.Prefixes.Add($"https://localhost:{port}/");
+            _listener.Prefixes.Add($"wss://localhost:{port}/");
             _semaphore = new SemaphoreSlim(1, 1); // Allows only one request at a time
         }
 
@@ -118,11 +121,19 @@ namespace HighscoreServer
         {
             try
             {
-                while (_isRunning)
+                while (_listener.IsListening)
                 {
-                    var listenContext = await _listener.GetContextAsync();
-                    Interlocked.Increment(ref _activeRequests);
-                    _ = Task.Run(() => HandleRequest(listenContext));
+                    var context = await _listener.GetContextAsync();
+                    if (context.Request.IsWebSocketRequest)
+                    {
+                        var webSocketContext = await context.AcceptWebSocketAsync(null);
+                        await HandleRequest(webSocketContext.WebSocket);
+                    }
+                    else
+                    {
+                        context.Response.StatusCode = 400;
+                        context.Response.Close();
+                    }
                 }
             }
             catch (HttpListenerException) when (!Program.IsShuttingDown())
@@ -134,59 +145,29 @@ namespace HighscoreServer
         /// <summary>
         /// Handle GET and POST requests from the client.
         /// </summary>
-        /// <param name="context">The context of the request.</param>
-        public async Task HandleRequest(HttpListenerContext context)
+        /// <param name="webSocket">The websocket connection between server and client.</param>
+        public async Task HandleRequest(WebSocket webSocket)
         {
             await _semaphore.WaitAsync();
+            Interlocked.Increment(ref _activeRequests);
+
             try
             {
-                switch (context.Request.HttpMethod)
-                {
-                    case "POST":
-                    {
-                        using var reader = new StreamReader(context.Request.InputStream);
-                        var requestBody = await reader.ReadToEndAsync();
-                        var entry = JsonSerializer.Deserialize<KeyValuePair<string, string[]>>(requestBody);
+                var buffer = new byte[1024 * 4];
+                var result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+                var receivedMessage = System.Text.Encoding.UTF8.GetString(buffer, 0, result.Count);
+                Console.WriteLine("Received: " + receivedMessage);
 
-                        try
-                        {
-                            _data.AddEntry(entry.Key, entry.Value);
-                            context.Response.StatusCode = (int)HttpStatusCode.OK;
-                            var response = JsonSerializer.Serialize(new { Message = "Entry added successfully." });
-                            byte[] buffer = System.Text.Encoding.UTF8.GetBytes(response);
-                            context.Response.ContentLength64 = buffer.Length;
-                            await context.Response.OutputStream.WriteAsync(buffer, 0, buffer.Length);
-                        }
-                        catch (Exception ex)
-                        {
-                            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                            var response = JsonSerializer.Serialize(new { Error = ex.Message });
-                            byte[] buffer = System.Text.Encoding.UTF8.GetBytes(response);
-                            context.Response.ContentLength64 = buffer.Length;
-                            await context.Response.OutputStream.WriteAsync(buffer, 0, buffer.Length);
-                        }
-
-                        break;
-                    }
-                    case "GET":
-                    {
-                        var responseString = JsonSerializer.Serialize(_data.GetFormats());
-                        byte[] buffer = System.Text.Encoding.UTF8.GetBytes(responseString);
-                        context.Response.ContentLength64 = buffer.Length;
-
-                        using (var output = context.Response.OutputStream)
-                        {
-                            await output.WriteAsync(buffer, 0, buffer.Length);
-                        }
-
-                        break;
-                    }
-                }
+                // Echo the message back
+                var serverMessage = "Server received: " + receivedMessage;
+                var bytes = System.Text.Encoding.UTF8.GetBytes(serverMessage);
+                await webSocket.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text, true, CancellationToken.None);
             }
             finally
             {
                 Interlocked.Decrement(ref _activeRequests);
                 _semaphore.Release();
+                await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", CancellationToken.None);
             }
         }
     }
