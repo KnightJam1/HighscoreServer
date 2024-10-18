@@ -12,10 +12,11 @@ namespace HighscoreServer
     /// A server that communicates with the client over a websocket.
     /// Handles GET and POST commands.
     /// </summary>
-    public class WebsocketServer : IServer
+    public class WebsocketServer
     {
         private readonly HttpListener _listener;
         private readonly SemaphoreSlim _semaphore;
+        private readonly EncryptionHandler _encryptionHandler;
         static readonly LoggerTerminal Logger = new LoggerTerminal();
         
         private bool _isRunning;
@@ -27,7 +28,8 @@ namespace HighscoreServer
         private const string DefaultFileName = "data";
         
         // Secret Int here. Must change. Make sure that the secret is the same for client and server.
-        private const int Secret = 1;
+        private const int ServerSecret = 1;
+        private readonly Dictionary<WebSocket, byte[]> _clientKeys = new Dictionary<WebSocket, byte[]>();
 
         public WebsocketServer(string port)
         {
@@ -35,6 +37,7 @@ namespace HighscoreServer
             _listener = new HttpListener();
             _listener.Prefixes.Add($"http://localhost:{port}/");
             _semaphore = new SemaphoreSlim(1, 1); // Allows only one request at a time
+            _encryptionHandler = new EncryptionHandler();   
         }
 
         public void AddLeaderboard(string name, List<string> format, List<string> dataTypeNames, int maxEntries)
@@ -115,7 +118,7 @@ namespace HighscoreServer
         }
 
         /// <summary>
-        /// Asynchronously listen for requests from clients.
+        /// Asynchronously listen for requests to start a websocket connection.
         /// </summary>
         public async Task ListenAsync()
         {
@@ -123,11 +126,12 @@ namespace HighscoreServer
             {
                 while (_listener.IsListening)
                 {
+                    // Always listening for WebSocket requests
                     var context = await _listener.GetContextAsync();
                     if (context.Request.IsWebSocketRequest)
                     {
                         var webSocketContext = await context.AcceptWebSocketAsync(null);
-                        await HandleRequest(webSocketContext.WebSocket);
+                        await HandleWebsocketAsync(webSocketContext);
                     }
                     else
                     {
@@ -145,30 +149,83 @@ namespace HighscoreServer
         /// <summary>
         /// Handle GET and POST requests from the client.
         /// </summary>
-        /// <param name="webSocket">The websocket connection between server and client.</param>
-        public async Task HandleRequest(WebSocket webSocket)
+        /// <param name="context">The websocket context between server and client.</param>
+        private async Task HandleWebsocketAsync(HttpListenerWebSocketContext context)
         {
-            await _semaphore.WaitAsync();
-            Interlocked.Increment(ref _activeRequests);
+            var webSocket = context.WebSocket;
+            var buffer = new byte[1024 * 4];
 
-            try
+            while (webSocket.State == WebSocketState.Open)
             {
-                var buffer = new byte[1024 * 4];
-                var result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-                var receivedMessage = System.Text.Encoding.UTF8.GetString(buffer, 0, result.Count);
-                Console.WriteLine("Received: " + receivedMessage);
+                await _semaphore.WaitAsync();
+                Interlocked.Increment(ref _activeRequests);
 
-                // Echo the message back
-                var serverMessage = "Server received: " + receivedMessage;
-                var bytes = System.Text.Encoding.UTF8.GetBytes(serverMessage);
-                await webSocket.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text, true, CancellationToken.None);
+                try
+                {
+                    var result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+                    var receivedMessage = Encoding.UTF8.GetString(buffer, 0, result.Count);
+                    var parts = receivedMessage.Split(' ');
+
+                    if (_clientKeys.ContainsKey(webSocket)) // Do if an encryption key has been shared between the server and client.
+                    {
+                        // Decrypt the message
+                        byte[] key = _clientKeys[webSocket];
+                        byte[] encryptedMessage = Convert.FromBase64String(parts[1]);
+                        byte[] decryptedMessage = _encryptionHandler.Decrypt(encryptedMessage, key);
+
+                        // Further processing based on decrypted message
+                        Console.WriteLine("Decrypted Message: " + Encoding.UTF8.GetString(decryptedMessage));
+                    }
+                    else if (parts[0] == "secret") // Do if the client is confirming secret.
+                    {
+                        if (int.TryParse(parts[1], out int clientSecret) && clientSecret == ServerSecret)
+                        {
+                            // If the client has a matching secret, generate a new encryption key for the websocket and share with the client.
+                            var key = _encryptionHandler.GenerateEncryptionKey();
+                            _clientKeys[webSocket] = key;
+                            await SendMessage(webSocket, Convert.ToBase64String(key));
+                        }
+                        else
+                        {
+                            await webSocket.CloseAsync(WebSocketCloseStatus.PolicyViolation, "Invalid secret", CancellationToken.None);
+                        }
+                    }
+                }
+                finally
+                {
+                    Interlocked.Decrement(ref _activeRequests);
+                    _semaphore.Release();
+                }
             }
-            finally
-            {
-                Interlocked.Decrement(ref _activeRequests);
-                _semaphore.Release();
-                await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", CancellationToken.None);
-            }
+
+            await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", CancellationToken.None);
+        }
+        
+        private async Task SendMessage(WebSocket webSocket, string message)
+        {
+            var buffer = Encoding.UTF8.GetBytes(message);
+            await webSocket.SendAsync(new ArraySegment<byte>(buffer), WebSocketMessageType.Text, true, CancellationToken.None);
         }
     }
 }
+// await _semaphore.WaitAsync();
+// Interlocked.Increment(ref _activeRequests);
+//
+// try
+// {
+//     var buffer = new byte[1024 * 4];
+//     var result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+//     var receivedMessage = System.Text.Encoding.UTF8.GetString(buffer, 0, result.Count);
+//     Console.WriteLine("Received: " + receivedMessage);
+//
+//     // Echo the message back
+//     var serverMessage = "Server received: " + receivedMessage;
+//     var bytes = System.Text.Encoding.UTF8.GetBytes(serverMessage);
+//     await webSocket.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text, true, CancellationToken.None);
+// }
+// finally
+// {
+//     Interlocked.Decrement(ref _activeRequests);
+//     _semaphore.Release();
+//     await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", CancellationToken.None);
+// }

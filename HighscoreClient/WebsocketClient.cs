@@ -14,6 +14,7 @@ public class WebsocketClient
     
     // Secret Int here. Must change. Make sure that the secret is the same for client and server.
     private const int Secret = 1;
+    private byte[] _encryptionKey;
 
     // Create a client
     public WebsocketClient(string port)
