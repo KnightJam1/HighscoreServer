@@ -33,7 +33,7 @@ namespace HighscoreServer
         {
             _data = new Game();
             _listener = new HttpListener();
-            _listener.Prefixes.Add($"wss://localhost:{port}/");
+            _listener.Prefixes.Add($"http://localhost:{port}/");
             _semaphore = new SemaphoreSlim(1, 1); // Allows only one request at a time
         }
 
