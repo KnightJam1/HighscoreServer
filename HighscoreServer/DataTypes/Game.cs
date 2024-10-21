@@ -24,10 +24,7 @@ public class Game
         }
         else
         {
-            // throw an exception instead
-            //message = $"Leaderboard for game mode '{gameMode}' does not exist.";
             throw new Exception($"Leaderboard for game mode '{gameMode}' does not exist.");
-            return false;
         }
     }
 

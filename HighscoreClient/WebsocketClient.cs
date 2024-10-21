@@ -1,4 +1,3 @@
-using System.Net;
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
@@ -7,15 +6,14 @@ namespace HighscoreClient;
 
 public class WebsocketClient
 {
-    //private readonly HttpClient _highscoreClient;
     private readonly string _serverUrl;
     private readonly EncryptionHandler _encryptionHandler;
-    private ClientWebSocket _webSocket;
+    private readonly ClientWebSocket _webSocket;
     private bool _isConnected;
     
     // Secret Int here. Must change. Make sure that the secret is the same for client and server.
     private const int Secret = 1;
-    private byte[] _encryptionKey;
+    private byte[] _encryptionKey = Array.Empty<byte>();
 
     // Create a client
     public WebsocketClient(string port)
@@ -24,7 +22,6 @@ public class WebsocketClient
         _webSocket = new ClientWebSocket();
         _serverUrl = $"ws://localhost:{port}";
         _isConnected = false;
-        //_highscoreClient = new HttpClient();
     }
 
     // Open a session with the server
@@ -59,10 +56,14 @@ public class WebsocketClient
 
     public async Task CloseSessionAsync()
     {
+        if (!_isConnected)
+        {
+            throw new InvalidOperationException("The websocket is not connected.");
+        }
         await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", CancellationToken.None);
         _webSocket.Dispose();
         Console.WriteLine("Session closed with server.");
-        _isConnected = true;
+        _isConnected = false;
     }
 
     public async Task RequestLeaderboard(string leaderboardId, int numberOfScores, int position)
@@ -110,6 +111,11 @@ public class WebsocketClient
         byte[] decryptedData = _encryptionHandler.Decrypt(encryptedData, _encryptionKey);
 
         string jsonData = Encoding.UTF8.GetString(decryptedData);
-        return JsonSerializer.Deserialize<List<string[]>>(jsonData);
+        List<string[]> data = JsonSerializer.Deserialize<List<string[]>>(jsonData)!;
+        if (data == null)
+        {
+            throw new InvalidOperationException("The encrypted message is empty.");
+        }
+        return data;
     }
 }

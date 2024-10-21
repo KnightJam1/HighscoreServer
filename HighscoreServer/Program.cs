@@ -1,5 +1,4 @@
 ﻿using HighscoreServer.Commands;
-using HighscoreServer.DataServices;
 using HighscoreServer.Loggers;
 
 namespace HighscoreServer;
@@ -11,10 +10,10 @@ static class Program
     // static readonly string DefaultFileName = "data";
     
     // Necessary static property
-    private static bool _shutdownRequested = false;
+    private static bool _shutdownRequested;
 
     // Passed into context.
-    static WebsocketServer _server = new WebsocketServer("8080");
+    static readonly WebsocketServer Server = new WebsocketServer("8080");
     static readonly LoggerTerminal Logger = new LoggerTerminal();
 
     // Used only in main.
@@ -26,10 +25,10 @@ static class Program
     static void Main()
     {
         // Start asynchronous server
-        _ = _server.Start();
+        _ = Server.Start();
 
         // Load data when the server starts
-        CommandContext context = new CommandContext(_server,Logger);
+        CommandContext context = new CommandContext(Server,Logger);
         CommandProcessor.ExecuteCommand(context, "initialize");
 
         // Start the command handling loop

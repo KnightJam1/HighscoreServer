@@ -19,12 +19,13 @@ namespace HighscoreServer
         private readonly EncryptionHandler _encryptionHandler;
         static readonly LoggerTerminal Logger = new LoggerTerminal();
         
-        private bool _isRunning;
+        // private bool _isRunning;
         private int _activeRequests;
         private Game _data;
         
+        // Change to allow user to specify their default directory.
         static readonly IDataService DataService = new FileDataService("SavedData",".json");
-        private const string DefaultDataDirectory = "SavedData";
+        //private const string DefaultDataDirectory = "SavedData";
         private const string DefaultFileName = "data";
         
         // Secret Int here. Must change. Make sure that the secret is the same for client and server.
@@ -55,7 +56,7 @@ namespace HighscoreServer
         {
             try
             {
-                Game newData = DataService.Load(defaultFileName)!;
+                Game newData = DataService.Load(defaultFileName);
                 _data = newData;
             }
             catch (Exception ex)
@@ -95,7 +96,7 @@ namespace HighscoreServer
         
         public async Task Start()
         {
-            _isRunning = true;
+            // _isRunning = true;
             _listener.Start();
             Logger.Log("Now Listening...");
             Logger.Log("Type 'shutdown' to stop the server. Type 'help' to see a list of commands");
@@ -104,7 +105,7 @@ namespace HighscoreServer
 
         public void RequestStop()
         {
-            _isRunning = false;
+            // _isRunning = false;
             Logger.Log("Waiting for active requests to stop...");
             while (_activeRequests > 0)
             {
@@ -120,7 +121,7 @@ namespace HighscoreServer
         /// <summary>
         /// Asynchronously listen for requests to start a websocket connection.
         /// </summary>
-        public async Task ListenAsync()
+        private async Task ListenAsync()
         {
             try
             {
