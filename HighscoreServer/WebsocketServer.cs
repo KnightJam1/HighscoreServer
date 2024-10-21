@@ -147,7 +147,9 @@ namespace HighscoreServer
         }
 
         /// <summary>
-        /// Handle GET and POST requests from the client.
+        /// Handle websockets.
+        /// Handle requests from websockets if the encryption key has been established.
+        /// Otherwise, create an encryption key if the secrets match.
         /// </summary>
         /// <param name="context">The websocket context between server and client.</param>
         private async Task HandleWebsocketAsync(HttpListenerWebSocketContext context)
@@ -157,26 +159,22 @@ namespace HighscoreServer
 
             while (webSocket.State == WebSocketState.Open)
             {
-                //The semaphore and request counter should not be here as they prevent more sessions from opening.
-                //await _semaphore.WaitAsync();
-                //Interlocked.Increment(ref _activeRequests);
-
                 try
                 {
                     var result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
                     var receivedMessage = Encoding.UTF8.GetString(buffer, 0, result.Count);
                     var parts = receivedMessage.Split(' ');
 
-                    if (_clientKeys.ContainsKey(webSocket)) // Do if an encryption key has been shared between the server and client.
+                    if (_clientKeys
+                        .ContainsKey(
+                            webSocket)) // Do if an encryption key has been shared between the server and client.
                     {
                         // Decrypt the message
                         byte[] key = _clientKeys[webSocket];
                         byte[] encryptedMessage = Convert.FromBase64String(parts[0]);
                         byte[] decryptedMessage = _encryptionHandler.Decrypt(encryptedMessage, key);
 
-                        // Further processing based on decrypted message
-                        //Logger.Log($"{parts[0]}: {decryptedMessage}");
-                        //Console.WriteLine("Decrypted Message: " + Encoding.UTF8.GetString(decryptedMessage));
+                        // Handle the decrypted message
                         await HandleRequest(webSocket, Encoding.UTF8.GetString(decryptedMessage));
                     }
                     else if (parts[0] == "secret") // Do if the client is confirming secret.
@@ -190,14 +188,14 @@ namespace HighscoreServer
                         }
                         else
                         {
-                            await webSocket.CloseAsync(WebSocketCloseStatus.PolicyViolation, "Invalid secret", CancellationToken.None);
+                            await webSocket.CloseAsync(WebSocketCloseStatus.PolicyViolation, "Invalid secret",
+                                CancellationToken.None);
                         }
                     }
                 }
-                finally
+                catch (Exception ex)
                 {
-                    //Interlocked.Decrement(ref _activeRequests);
-                    //_semaphore.Release();
+                    Logger.Log($"{ex.GetType()}: {ex.Message}", LoggerBase.SeverityLevel.Error);
                 }
             }
 
@@ -233,6 +231,11 @@ namespace HighscoreServer
                         _data.AddEntry(info.LeaderboardName, info.Data);
                         break;
                     }
+                    default:
+                    {
+                        Logger.Log($"Could not handle request of type: {info.Type}.", LoggerBase.SeverityLevel.Warning);
+                        break;
+                    }
                 }
             }
             finally
@@ -257,24 +260,3 @@ namespace HighscoreServer
         }
     }
 }
-// await _semaphore.WaitAsync();
-// Interlocked.Increment(ref _activeRequests);
-//
-// try
-// {
-//     var buffer = new byte[1024 * 4];
-//     var result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-//     var receivedMessage = System.Text.Encoding.UTF8.GetString(buffer, 0, result.Count);
-//     Console.WriteLine("Received: " + receivedMessage);
-//
-//     // Echo the message back
-//     var serverMessage = "Server received: " + receivedMessage;
-//     var bytes = System.Text.Encoding.UTF8.GetBytes(serverMessage);
-//     await webSocket.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text, true, CancellationToken.None);
-// }
-// finally
-// {
-//     Interlocked.Decrement(ref _activeRequests);
-//     _semaphore.Release();
-//     await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", CancellationToken.None);
-// }
