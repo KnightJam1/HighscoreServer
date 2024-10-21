@@ -132,7 +132,7 @@ namespace HighscoreServer
                     if (context.Request.IsWebSocketRequest)
                     {
                         var webSocketContext = await context.AcceptWebSocketAsync(null);
-                        await HandleWebsocketAsync(webSocketContext);
+                        _ = HandleWebsocketAsync(webSocketContext);
                     }
                     else
                     {
