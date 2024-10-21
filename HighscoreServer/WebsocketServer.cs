@@ -222,7 +222,7 @@ namespace HighscoreServer
                 {
                     case "GET":
                     {
-                        var responseString = JsonSerializer.Serialize(_data.GetTopNFromLeaderboard(info.LeaderboardName, info.NumberOfScores));
+                        var responseString = JsonSerializer.Serialize(_data.GetTopNFromLeaderboard(info.LeaderboardName, info.Position, info.ScoresBefore, info.ScoresAfter));
                         await SendEncryptedMessageAsync(webSocket, responseString);
 
                         break;

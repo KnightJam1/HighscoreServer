@@ -38,8 +38,8 @@ public class Game
         return formats;
     }
 
-    public List<string[]> GetTopNFromLeaderboard(string leaderboardName, int topN)
+    public List<string[]> GetTopNFromLeaderboard(string leaderboardName, int position, int scoresBefore, int scoresAfter)
     {
-        return Leaderboards[leaderboardName].GetTopN(topN);
+        return Leaderboards[leaderboardName].GetTopN(position, scoresBefore, scoresAfter);
     }
 }

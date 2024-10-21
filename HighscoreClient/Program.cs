@@ -21,22 +21,23 @@ class Program
         
         await client.SendEncryptedMessageAsync(message);
 
-        // var get10Request = new ClientWebSocketMessage
-        // {
-        //     Type = "GET",
-        //     LeaderboardName = "gamemode1",
-        //     NumberOfScores = 10,
-        //     Position = 0
-        // };
-        // message = JsonSerializer.Serialize(get10Request);
-        //
-        // await client.SendEncryptedMessageAsync(message);
-        // List<string[]> leaderboard = await client.ReceiveEncryptedMessageAsync();
-        //
-        // for (int i = 0; i < leaderboard.Count; i++)
-        // {
-        //     Console.WriteLine($"{leaderboard[i][0]}: {leaderboard[i][1]}");
-        // }
+        var get10Request = new ClientWebSocketMessage
+        {
+            Type = "GET",
+            LeaderboardName = "gamemode1",
+            ScoresBefore = 4,
+            ScoresAfter = 5,
+            Position = 20
+        };
+        message = JsonSerializer.Serialize(get10Request);
+        
+        await client.SendEncryptedMessageAsync(message);
+        List<string[]> leaderboard = await client.ReceiveEncryptedMessageAsync();
+        
+        for (int i = 0; i < leaderboard.Count; i++)
+        {
+            Console.WriteLine($"{leaderboard[i][0]}: {leaderboard[i][1]}");
+        }
 
         Console.ReadLine();
         

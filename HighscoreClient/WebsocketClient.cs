@@ -66,13 +66,14 @@ public class WebsocketClient
         _isConnected = false;
     }
 
-    public async Task RequestLeaderboard(string leaderboardId, int numberOfScores, int position)
+    public async Task RequestLeaderboard(string leaderboardId, int scoresBefore, int scoresAfter, int position)
     {
         var message = new ClientWebSocketMessage
         {
             Type = "GET",
             LeaderboardName = leaderboardId,
-            NumberOfScores = numberOfScores,
+            ScoresBefore = scoresBefore,
+            ScoresAfter = scoresAfter,
             Position = position
         };
         var jsonMessage = JsonSerializer.Serialize(message);
