@@ -1,6 +1,6 @@
 using System.Security.Cryptography;
 
-namespace HighscoreServer;
+namespace HighscoreClient;
 
 public class EncryptionHandler
 {
@@ -23,7 +23,7 @@ public class EncryptionHandler
             {
                 throw new InvalidOperationException("IV not generated.");
             }
-            
+
             using (var encryptor = aes.CreateEncryptor(aes.Key, aes.IV))
             using (var ms = new MemoryStream())
             {

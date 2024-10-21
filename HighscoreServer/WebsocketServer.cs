@@ -157,8 +157,9 @@ namespace HighscoreServer
 
             while (webSocket.State == WebSocketState.Open)
             {
-                await _semaphore.WaitAsync();
-                Interlocked.Increment(ref _activeRequests);
+                //The semaphore and request counter should not be here as they prevent more sessions from opening.
+                //await _semaphore.WaitAsync();
+                //Interlocked.Increment(ref _activeRequests);
 
                 try
                 {
@@ -170,11 +171,13 @@ namespace HighscoreServer
                     {
                         // Decrypt the message
                         byte[] key = _clientKeys[webSocket];
-                        byte[] encryptedMessage = Convert.FromBase64String(parts[1]);
+                        byte[] encryptedMessage = Convert.FromBase64String(parts[0]);
                         byte[] decryptedMessage = _encryptionHandler.Decrypt(encryptedMessage, key);
 
                         // Further processing based on decrypted message
-                        Console.WriteLine("Decrypted Message: " + Encoding.UTF8.GetString(decryptedMessage));
+                        //Logger.Log($"{parts[0]}: {decryptedMessage}");
+                        //Console.WriteLine("Decrypted Message: " + Encoding.UTF8.GetString(decryptedMessage));
+                        await HandleRequest(webSocket, Encoding.UTF8.GetString(decryptedMessage));
                     }
                     else if (parts[0] == "secret") // Do if the client is confirming secret.
                     {
@@ -183,7 +186,7 @@ namespace HighscoreServer
                             // If the client has a matching secret, generate a new encryption key for the websocket and share with the client.
                             var key = _encryptionHandler.GenerateEncryptionKey();
                             _clientKeys[webSocket] = key;
-                            await SendMessage(webSocket, Convert.ToBase64String(key));
+                            await SendMessageAsync(webSocket, Convert.ToBase64String(key));
                         }
                         else
                         {
@@ -193,18 +196,68 @@ namespace HighscoreServer
                 }
                 finally
                 {
-                    Interlocked.Decrement(ref _activeRequests);
-                    _semaphore.Release();
+                    //Interlocked.Decrement(ref _activeRequests);
+                    //_semaphore.Release();
                 }
             }
 
             await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", CancellationToken.None);
         }
+
+        private async Task HandleRequest(WebSocket webSocket, string requestContent)
+        {
+            await _semaphore.WaitAsync();
+            Interlocked.Increment(ref _activeRequests);
+            try
+            {
+                string serializedInfo = requestContent.Replace("\\u0022", "\"");
+                serializedInfo = serializedInfo.Substring(1, serializedInfo.Length - 2);
+                
+                Logger.Log($"Recieved a {serializedInfo} request.");
+                
+                var info = JsonSerializer.Deserialize<ClientWebSocketMessage>(serializedInfo);
+                if (info == null)
+                {
+                    throw new Exception("Invalid request. Must be sent a ClientWebSocketMessage.");
+                }
+                Logger.Log($"{info.Type}");
+                switch (info.Type)
+                {
+                    case "GET":
+                    {
+                        var responseString = JsonSerializer.Serialize(_data);
+                        await SendEncryptedMessageAsync(webSocket, $"{responseString}, {info.NumberOfScores}");
+
+                        break;
+                    }
+                    case "POST":
+                    {
+                        _data.AddEntry(info.LeaderboardName, info.Data);
+                        break;
+                    }
+                }
+                
+            }
+            finally
+            {
+                Interlocked.Decrement(ref _activeRequests);
+                _semaphore.Release();
+            }
+        }
         
-        private async Task SendMessage(WebSocket webSocket, string message)
+        private async Task SendMessageAsync(WebSocket webSocket, string message)
         {
             var buffer = Encoding.UTF8.GetBytes(message);
             await webSocket.SendAsync(new ArraySegment<byte>(buffer), WebSocketMessageType.Text, true, CancellationToken.None);
+        }
+        
+        private async Task SendEncryptedMessageAsync(WebSocket webSocket, string data)
+        {
+            string jsonData = JsonSerializer.Serialize(data);
+            byte[] encryptedData = _encryptionHandler.Encrypt(Encoding.UTF8.GetBytes(jsonData), _clientKeys[webSocket]);
+
+            string encryptedMessage = Convert.ToBase64String(encryptedData);
+            await SendMessageAsync(webSocket, encryptedMessage);
         }
     }
 }

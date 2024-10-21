@@ -9,8 +9,17 @@ class Program
     {
         var client = new WebsocketClient("8080");
         await client.OpenSessionAsync();
-        await client.SendStringArrayAsync(["Hello, Server!"]);
-        await client.ReceiveMessage();
+        
+        var entry = new ClientWebSocketMessage
+        {
+            Type = "POST",
+            LeaderboardName = "gamemode1",
+            Data = ["1000","Josh","2024-10-01"]
+        };
+        var message = JsonSerializer.Serialize(entry);
+        
+        await client.SendEncryptedMessageAsync(message);
+        Console.WriteLine("About to close the connection.");
         await client.CloseSessionAsync();
     }
 }
