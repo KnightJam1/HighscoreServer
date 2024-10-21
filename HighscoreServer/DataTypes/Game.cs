@@ -40,4 +40,9 @@ public class Game
         }
         return formats;
     }
+
+    public List<string[]> GetTopNFromLeaderboard(string leaderboardName, int topN)
+    {
+        return Leaderboards[leaderboardName].GetTopN(topN);
+    }
 }

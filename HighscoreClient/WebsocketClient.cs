@@ -103,13 +103,13 @@ public class WebsocketClient
         await SendMessageAsync(encryptedMessage);
     }
     
-    public async Task<string[]> ReceiveEncryptedMessageAsync()
+    public async Task<List<string[]>> ReceiveEncryptedMessageAsync()
     {
         string encryptedMessage = await ReceiveMessageAsync();
         byte[] encryptedData = Convert.FromBase64String(encryptedMessage);
         byte[] decryptedData = _encryptionHandler.Decrypt(encryptedData, _encryptionKey);
 
         string jsonData = Encoding.UTF8.GetString(decryptedData);
-        return JsonSerializer.Deserialize<string[]>(jsonData);
+        return JsonSerializer.Deserialize<List<string[]>>(jsonData);
     }
 }

@@ -19,6 +19,24 @@ class Program
         var message = JsonSerializer.Serialize(entry);
         
         await client.SendEncryptedMessageAsync(message);
+
+        var get10Request = new ClientWebSocketMessage
+        {
+            Type = "GET",
+            LeaderboardName = "gamemode1",
+            NumberOfScores = 10,
+            Position = 0
+        };
+        message = JsonSerializer.Serialize(get10Request);
+        
+        await client.SendEncryptedMessageAsync(message);
+        List<string[]> leaderboard = await client.ReceiveEncryptedMessageAsync();
+
+        for (int i = 0; i < leaderboard.Count; i++)
+        {
+            Console.WriteLine($"{leaderboard[i][0]}: {leaderboard[i][1]}");
+        }
+        
         Console.WriteLine("About to close the connection.");
         await client.CloseSessionAsync();
     }

@@ -213,20 +213,18 @@ namespace HighscoreServer
                 string serializedInfo = requestContent.Replace("\\u0022", "\"");
                 serializedInfo = serializedInfo.Substring(1, serializedInfo.Length - 2);
                 
-                Logger.Log($"Recieved a {serializedInfo} request.");
-                
                 var info = JsonSerializer.Deserialize<ClientWebSocketMessage>(serializedInfo);
                 if (info == null)
                 {
                     throw new Exception("Invalid request. Must be sent a ClientWebSocketMessage.");
                 }
-                Logger.Log($"{info.Type}");
+                Logger.Log($"Recieved a {info.Type} request.");
                 switch (info.Type)
                 {
                     case "GET":
                     {
-                        var responseString = JsonSerializer.Serialize(_data);
-                        await SendEncryptedMessageAsync(webSocket, $"{responseString}, {info.NumberOfScores}");
+                        var responseString = JsonSerializer.Serialize(_data.GetTopNFromLeaderboard(info.LeaderboardName, info.NumberOfScores));
+                        await SendEncryptedMessageAsync(webSocket, responseString);
 
                         break;
                     }
@@ -236,7 +234,6 @@ namespace HighscoreServer
                         break;
                     }
                 }
-                
             }
             finally
             {
@@ -253,8 +250,7 @@ namespace HighscoreServer
         
         private async Task SendEncryptedMessageAsync(WebSocket webSocket, string data)
         {
-            string jsonData = JsonSerializer.Serialize(data);
-            byte[] encryptedData = _encryptionHandler.Encrypt(Encoding.UTF8.GetBytes(jsonData), _clientKeys[webSocket]);
+            byte[] encryptedData = _encryptionHandler.Encrypt(Encoding.UTF8.GetBytes(data), _clientKeys[webSocket]);
 
             string encryptedMessage = Convert.ToBase64String(encryptedData);
             await SendMessageAsync(webSocket, encryptedMessage);
