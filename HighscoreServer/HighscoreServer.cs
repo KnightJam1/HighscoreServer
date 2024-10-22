@@ -19,7 +19,7 @@ namespace HighscoreServer
         private readonly EncryptionHandler _encryptionHandler;
         static readonly LoggerTerminal Logger = new LoggerTerminal();
         
-        // private bool _isRunning;
+        private bool _isRunning;
         private int _activeRequests;
         private Game _data;
         
@@ -31,6 +31,7 @@ namespace HighscoreServer
         // Secret Int here. Must change. Make sure that the secret is the same for client and server.
         private const int ServerSecret = 1;
         private readonly Dictionary<WebSocket, byte[]> _clientKeys = new Dictionary<WebSocket, byte[]>();
+        private List<WebSocket> _websockets = new List<WebSocket>();
 
         public HighscoreServer(string port)
         {
@@ -96,7 +97,7 @@ namespace HighscoreServer
         
         public async Task Start()
         {
-            // _isRunning = true;
+            _isRunning = true;
             _listener.Start();
             Logger.Log("Now Listening...");
             Logger.Log("Type 'shutdown' to stop the server. Type 'help' to see a list of commands");
@@ -105,11 +106,17 @@ namespace HighscoreServer
 
         public void RequestStop()
         {
-            // _isRunning = false;
+            _isRunning = false;
             Logger.Log("Waiting for active requests to stop...");
             while (_activeRequests > 0)
             {
                 Thread.Sleep(100); // Small delay to prevent busy-waiting
+            }
+            foreach (WebSocket ws in _websockets)
+            {
+                Logger.Log("Stopped a websocket session.");
+                ws.CloseAsync(WebSocketCloseStatus.NormalClosure, "410 Server shut down.",
+                    CancellationToken.None);
             }
             SaveData();
             Logger.Log("Saved current data to data.json.");
@@ -125,7 +132,7 @@ namespace HighscoreServer
         {
             try
             {
-                while (_listener.IsListening)
+                while (_listener.IsListening && _isRunning)
                 {
                     // Always listening for WebSocket requests
                     var context = await _listener.GetContextAsync();
@@ -158,17 +165,24 @@ namespace HighscoreServer
             var webSocket = context.WebSocket;
             var buffer = new byte[1024 * 4];
 
-            while (webSocket.State == WebSocketState.Open)
+            while (webSocket.State == WebSocketState.Open && _isRunning)
             {
                 try
                 {
                     var result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+                    if (result.MessageType == WebSocketMessageType.Close)
+                    {
+                        //Close gracefully when the client stops the session.
+                        if (_clientKeys.ContainsKey(webSocket))
+                        {
+                            _clientKeys.Remove(webSocket);
+                        }
+                        Logger.Log("Socket closed.");
+                    }
                     var receivedMessage = Encoding.UTF8.GetString(buffer, 0, result.Count);
                     var parts = receivedMessage.Split(' ');
 
-                    if (_clientKeys
-                        .ContainsKey(
-                            webSocket)) // Do if an encryption key has been shared between the server and client.
+                    if (_clientKeys.ContainsKey(webSocket)) // Do if an encryption key has been shared between the server and client.
                     {
                         // Decrypt the message
                         byte[] key = _clientKeys[webSocket];
@@ -185,6 +199,7 @@ namespace HighscoreServer
                             // If the client has a matching secret, generate a new encryption key for the websocket and share with the client.
                             var key = _encryptionHandler.GenerateEncryptionKey();
                             _clientKeys[webSocket] = key;
+                            _websockets.Add(webSocket);
                             Logger.Log($"Session opened with new client.");
                             await SendMessageAsync(webSocket, Convert.ToBase64String(key));
                         }

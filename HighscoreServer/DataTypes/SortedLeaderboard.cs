@@ -93,7 +93,7 @@ public class SortedLeaderboard
             startIndex = Math.Max(pos - before - (pos + after - (Entries.Count - 1)), 0);
         }
         
-        //Debug.Assert(endIndex - startIndex + 1 <= before + 1 + after,$"Trying to send back more items than requested."); //Assert that there are never more items than requested.
+        Debug.Assert(endIndex - startIndex + 1 <= before + 1 + after,$"Trying to send back more items than requested."); //Assert that there are never more items than requested.
         
         return Entries.GetRange(startIndex, endIndex - startIndex + 1);
     }

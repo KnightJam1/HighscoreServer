@@ -36,6 +36,10 @@ class Program
         Console.Write("Press any key to continue...");
         Console.ReadKey();
         
+        // Wait for the user. This is here to test for concurrent sessions.
+        Console.Write("Press any key to continue...");
+        Console.ReadKey();
+        
         // Close session
         Console.WriteLine("About to close the connection.");
         await client.CloseSessionAsync();

@@ -58,14 +58,29 @@ public class HighscoreClient
 
     public async Task CloseSessionAsync()
     {
-        if (!_isConnected)
+        try
         {
-            throw new InvalidOperationException("The websocket is not connected.");
+            var getHandshake = ReceiveMessageAsync();
+            var timeoutTask = Task.Delay(100);
+            if (await Task.WhenAny(getHandshake, timeoutTask) == getHandshake)
+            {
+                throw new InvalidOperationException("The websocket is already closed.");
+            }
+            if (!_isConnected)
+            {
+                throw new InvalidOperationException("The websocket is not connected.");
+            }
+            await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", CancellationToken.None);
+            _webSocket.Dispose();
+            Console.WriteLine("Session closed with server.");
+            _isConnected = false;
         }
-        await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", CancellationToken.None);
-        _webSocket.Dispose();
-        Console.WriteLine("Session closed with server.");
-        _isConnected = false;
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            _webSocket.Dispose();
+            _isConnected = false;
+        }
     }
 
     public async Task<List<string[]>> GetLeaderboardScores(string leaderboardId, int position, int scoresBefore, int scoresAfter)
