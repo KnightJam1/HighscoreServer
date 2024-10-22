@@ -35,16 +35,24 @@ public class HighscoreClient
         }
         catch (WebSocketException ex)
         {
-            return new SessionResult(statusCode: statusMap(ex));
+            return new SessionResult(statusCode: WebStatusMap(ex));
         }
 
         // Send secret to the server
         await SendMessageAsync($"secret {Secret.ToString()}");
         
         // Recieve encryption key from the server
-        string keyString = await ReceiveMessageAsync();
-        _encryptionKey = Convert.FromBase64String(keyString);
-        Console.WriteLine($"Encryption key received from server");
+        try
+        {
+            string keyString = await ReceiveMessageAsync();
+            _encryptionKey = Convert.FromBase64String(keyString);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return new SessionResult(statusCode: ex.Message.Split(" ")[0]);
+        }
+        // Console.WriteLine($"Encryption key received from server");
         return new SessionResult(isSuccessful: true, statusCode: "200");
     }
 
@@ -101,6 +109,10 @@ public class HighscoreClient
     {
         var buffer = new byte[1024 * 4];
         var result = await _webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+        if (result.MessageType == WebSocketMessageType.Close)
+        {
+            throw new InvalidOperationException(result.CloseStatusDescription);
+        }
         return Encoding.UTF8.GetString(buffer, 0, result.Count);
     }
     
@@ -128,9 +140,9 @@ public class HighscoreClient
         return data;
     }
 
-    private string statusMap(WebSocketException ex)
+    private string WebStatusMap(WebSocketException ex)
     {
-        string status = "";
+        string status;
         switch (ex.WebSocketErrorCode)
         {
             case WebSocketError.InvalidMessageType:

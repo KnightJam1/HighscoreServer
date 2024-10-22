@@ -189,7 +189,7 @@ namespace HighscoreServer
                         }
                         else
                         {
-                            await webSocket.CloseAsync(WebSocketCloseStatus.PolicyViolation, "Invalid secret",
+                            await webSocket.CloseAsync(WebSocketCloseStatus.PolicyViolation, "403 Invalid secret",
                                 CancellationToken.None);
                         }
                     }
