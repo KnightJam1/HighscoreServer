@@ -12,7 +12,7 @@ namespace HighscoreServer
     /// A server that communicates with the client over a websocket.
     /// Handles GET and POST commands.
     /// </summary>
-    public class WebsocketServer
+    public class HighscoreServer
     {
         private readonly HttpListener _listener;
         private readonly SemaphoreSlim _semaphore;
@@ -32,7 +32,7 @@ namespace HighscoreServer
         private const int ServerSecret = 1;
         private readonly Dictionary<WebSocket, byte[]> _clientKeys = new Dictionary<WebSocket, byte[]>();
 
-        public WebsocketServer(string port)
+        public HighscoreServer(string port)
         {
             _data = new Game();
             _listener = new HttpListener();

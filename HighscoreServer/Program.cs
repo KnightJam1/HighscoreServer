@@ -13,7 +13,7 @@ static class Program
     private static bool _shutdownRequested;
 
     // Passed into context.
-    static readonly WebsocketServer Server = new WebsocketServer("8080");
+    static readonly HighscoreServer Server = new HighscoreServer("8080");
     static readonly LoggerTerminal Logger = new LoggerTerminal();
 
     // Used only in main.

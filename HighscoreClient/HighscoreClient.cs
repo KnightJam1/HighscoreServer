@@ -4,7 +4,7 @@ using System.Text.Json;
 
 namespace HighscoreClient;
 
-public class WebsocketClient
+public class HighscoreClient
 {
     private readonly string _serverUrl;
     private readonly EncryptionHandler _encryptionHandler;
@@ -16,7 +16,7 @@ public class WebsocketClient
     private byte[] _encryptionKey = Array.Empty<byte>();
 
     // Create a client
-    public WebsocketClient(string port)
+    public HighscoreClient(string port)
     {
         _encryptionHandler = new EncryptionHandler();
         _webSocket = new ClientWebSocket();
@@ -25,11 +25,18 @@ public class WebsocketClient
     }
 
     // Open a session with the server
-    public async Task OpenSessionAsync()
+    public async Task<SessionResult> OpenSessionAsync()
     {
-        await _webSocket.ConnectAsync(new Uri(_serverUrl), CancellationToken.None);
-        Console.WriteLine("Session opened with server.");
-        _isConnected = true;
+        try
+        {
+            await _webSocket.ConnectAsync(new Uri(_serverUrl), CancellationToken.None);
+            Console.WriteLine("Session opened with server.");
+            _isConnected = true;
+        }
+        catch (WebSocketException ex)
+        {
+            return new SessionResult(statusCode: statusMap(ex));
+        }
 
         // Send secret to the server
         await SendMessageAsync($"secret {Secret.ToString()}");
@@ -38,6 +45,7 @@ public class WebsocketClient
         string keyString = await ReceiveMessageAsync();
         _encryptionKey = Convert.FromBase64String(keyString);
         Console.WriteLine($"Encryption key received from server");
+        return new SessionResult(isSuccessful: true, statusCode: "200");
     }
 
     public async Task SendStringArrayAsync(string[] data)
@@ -118,5 +126,29 @@ public class WebsocketClient
             throw new InvalidOperationException("The encrypted message is empty.");
         }
         return data;
+    }
+
+    private string statusMap(WebSocketException ex)
+    {
+        string status = "";
+        switch (ex.WebSocketErrorCode)
+        {
+            case WebSocketError.InvalidMessageType:
+            case WebSocketError.HeaderError:
+            case WebSocketError.InvalidState:
+            case WebSocketError.NotAWebSocket:
+                status = "400"; // Bad Request
+                break;
+            case WebSocketError.ConnectionClosedPrematurely:
+                status = "408"; // Request Timeout
+                break;
+            case WebSocketError.UnsupportedProtocol:
+                status = "426"; // Upgrade Required
+                break;
+            default:
+                status = "500"; // Internal Server Error
+                break;
+        }
+        return status;
     }
 }

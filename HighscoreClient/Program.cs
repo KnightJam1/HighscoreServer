@@ -8,8 +8,16 @@ class Program
 {
     static async Task Main()
     {
-        var client = new WebsocketClient("8080");
-        await client.OpenSessionAsync();
+        var client = new HighscoreClient("8080");
+        SessionResult result = await client.OpenSessionAsync();
+        if (result.IsSuccessful)
+        {
+            Console.WriteLine("Session started successfully.");
+        }
+        else
+        {
+            Console.WriteLine($"Session failed: {result.StatusCode}");
+        }
         
         var entry = new ClientWebSocketMessage
         {
