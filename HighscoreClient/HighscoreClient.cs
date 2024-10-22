@@ -56,20 +56,6 @@ public class HighscoreClient
         return new SessionResult(isSuccessful: true, statusCode: "200");
     }
 
-    public async Task SendStringArrayAsync(string[] data)
-    {
-        var message = new ClientWebSocketMessage
-        {
-            Type = "POST",
-            Data = data
-        };
-        var jsonMessage = JsonSerializer.Serialize(message);
-        var buffer = Encoding.UTF8.GetBytes(jsonMessage);
-        var segment = new ArraySegment<byte>(buffer);
-        await _webSocket.SendAsync(segment, WebSocketMessageType.Text, true, CancellationToken.None);
-        Console.WriteLine("Data sent successfully.");
-    }
-
     public async Task CloseSessionAsync()
     {
         if (!_isConnected)
@@ -82,21 +68,19 @@ public class HighscoreClient
         _isConnected = false;
     }
 
-    public async Task RequestLeaderboard(string leaderboardId, int scoresBefore, int scoresAfter, int position)
+    public async Task<List<string[]>> GetLeaderboardScores(string leaderboardId, int position, int scoresBefore, int scoresAfter)
     {
-        var message = new ClientWebSocketMessage
-        {
-            Type = "GET",
-            LeaderboardName = leaderboardId,
-            ScoresBefore = scoresBefore,
-            ScoresAfter = scoresAfter,
-            Position = position
-        };
+        string message = $"GET {leaderboardId} {position} {scoresBefore} {scoresAfter}";
         var jsonMessage = JsonSerializer.Serialize(message);
-        var buffer = Encoding.UTF8.GetBytes(jsonMessage);
-        var segment = new ArraySegment<byte>(buffer);
-        await _webSocket.SendAsync(segment, WebSocketMessageType.Text, true, CancellationToken.None);
-        Console.WriteLine("Data sent successfully.");
+        await SendEncryptedMessageAsync(message);
+        return await ReceiveEncryptedMessageAsync();
+    }
+
+    public async Task PostEntry(string leaderboardId, string[] entry)
+    {
+        string message = $"POST {leaderboardId} {string.Join(" ", entry)}";
+        var jsonMessage = JsonSerializer.Serialize(message);
+        await SendEncryptedMessageAsync(message);
     }
     
     private async Task SendMessageAsync(string message)

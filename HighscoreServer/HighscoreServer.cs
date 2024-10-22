@@ -185,6 +185,7 @@ namespace HighscoreServer
                             // If the client has a matching secret, generate a new encryption key for the websocket and share with the client.
                             var key = _encryptionHandler.GenerateEncryptionKey();
                             _clientKeys[webSocket] = key;
+                            Logger.Log($"Session opened with new client.");
                             await SendMessageAsync(webSocket, Convert.ToBase64String(key));
                         }
                         else
@@ -209,35 +210,40 @@ namespace HighscoreServer
             Interlocked.Increment(ref _activeRequests);
             try
             {
-                string serializedInfo = requestContent.Replace("\\u0022", "\"");
-                serializedInfo = serializedInfo.Substring(1, serializedInfo.Length - 2);
+                //string serializedInfo = requestContent.Replace("\\u0022", "\"");
+                //string serializedInfo = requestContent.Substring(1, requestContent.Length - 2);
+                //Logger.Log($"Received request: {serializedInfo}");
                 
-                var info = JsonSerializer.Deserialize<ClientWebSocketMessage>(serializedInfo);
+                var info = JsonSerializer.Deserialize<string>(requestContent).Split(" ", 2);
                 if (info == null)
                 {
-                    throw new Exception("Invalid request. Must be sent a ClientWebSocketMessage.");
+                    throw new Exception("Invalid request.");
                 }
-                Logger.Log($"Recieved a {info.Type} request.");
-                switch (info.Type)
+                Logger.Log($"Received a {info[0]} request.");
+                switch (info[0])
                 {
                     case "GET":
                     {
-                        var responseString = JsonSerializer.Serialize(_data.GetTopNFromLeaderboard(info.LeaderboardName, info.Position, info.ScoresBefore, info.ScoresAfter));
+                        var parts = info[1].Split(' ');
+                        var responseString = JsonSerializer.Serialize(_data.GetTopNFromLeaderboard(parts[0], int.Parse(parts[1]), int.Parse(parts[2]), int.Parse(parts[3])));
                         await SendEncryptedMessageAsync(webSocket, responseString);
 
                         break;
                     }
                     case "POST":
                     {
-                        _data.AddEntry(info.LeaderboardName, info.Data);
+                        var parts = info[1].Split(' ', 2);
+                        _data.AddEntry(parts[0], parts[1].Split(" "));
+                        Logger.Log("Added entry.");
                         break;
                     }
                     default:
                     {
-                        Logger.Log($"Could not handle request of type: {info.Type}.", LoggerBase.SeverityLevel.Warning);
+                        Logger.Log($"Could not handle request of type: {info[0]}.", LoggerBase.SeverityLevel.Warning);
                         break;
                     }
                 }
+                Logger.Log("Completed Request.");
             }
             finally
             {

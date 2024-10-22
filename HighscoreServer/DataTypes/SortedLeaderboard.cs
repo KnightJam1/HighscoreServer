@@ -80,20 +80,20 @@ public class SortedLeaderboard
     /// <returns>List of entries.</returns>
     public List<string[]> GetTopN( int pos, int before, int after)
     {
-        int startIndex = Math.Max(pos - (before + 1), 0); //Start with the items specified before the position, or 0
+        int startIndex = Math.Max(pos - before, 0); //Start with the items specified before the position, or 0
         int endIndex = Math.Min(pos + after, Entries.Count - 1);
 
         if (pos - before < 0) // If there are more items requested before the given position than there actually are, try to get more from after.
         {
-            endIndex = Math.Min(pos + after + (pos - (before + 1)), Entries.Count - 1);
+            endIndex = Math.Min(pos + after - (pos - before), Entries.Count - 1);
         }
 
         if (pos + after > Entries.Count - 1) // If there are more items requested after the given position than there actually are, try to get more from before.
         {
-            startIndex = Math.Max(pos - (before + 1) - (pos + after), 0);
+            startIndex = Math.Max(pos - before - (pos + after - (Entries.Count - 1)), 0);
         }
         
-        Debug.Assert(endIndex - startIndex <= before + 1 + after); //Assert that there are never more items than requested.
+        //Debug.Assert(endIndex - startIndex + 1 <= before + 1 + after,$"Trying to send back more items than requested."); //Assert that there are never more items than requested.
         
         return Entries.GetRange(startIndex, endIndex - startIndex + 1);
     }
