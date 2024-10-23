@@ -115,7 +115,7 @@ public class HighscoreClient
         return Encoding.UTF8.GetString(buffer, 0, result.Count);
     }
     
-    public async Task SendEncryptedMessageAsync(string data)
+    private async Task SendEncryptedMessageAsync(string data)
     {
         string jsonData = JsonSerializer.Serialize(data);
         byte[] encryptedData = _encryptionHandler.Encrypt(Encoding.UTF8.GetBytes(jsonData), _encryptionKey);
@@ -124,7 +124,7 @@ public class HighscoreClient
         await SendMessageAsync(encryptedMessage);
     }
     
-    public async Task<List<string[]>> ReceiveEncryptedMessageAsync()
+    private async Task<List<string[]>> ReceiveEncryptedMessageAsync()
     {
         string encryptedMessage = await ReceiveMessageAsync();
         byte[] encryptedData = Convert.FromBase64String(encryptedMessage);
