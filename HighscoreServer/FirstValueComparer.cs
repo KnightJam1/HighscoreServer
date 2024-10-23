@@ -7,7 +7,7 @@ class FirstValueComparer : IComparer<string[]>
         // Compare the first element as an integer
         if (x is not null && y is not null)
         {
-            return int.Parse(x[0]).CompareTo(int.Parse(y[0]));
+            return int.Parse(y[0]).CompareTo(int.Parse(x[0])); // y first makes the list maintain itself in descending order, so the best highscore is first.
         }
         throw new Exception("Trying to compare null value.");
     }
