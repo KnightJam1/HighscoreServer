@@ -26,14 +26,14 @@ public class SortedLeaderboard
     {
         if (entry.Length != Format.Count)
         {
-            throw new ArgumentException($"Invalid entry format. Expected {Format.Count} values: {string.Join(", ", Format)}");
+            throw new ArgumentException($"400 Invalid entry format. Expected {Format.Count} values: {string.Join(", ", Format)}");
         }
 
         for (int i = 0; i < entry.Length; i++)
         {
             if (!ValidateType(entry[i], DataTypeNames[i]))
             {
-                throw new ArgumentException($"Invalid type for '{Format[i]}'. Expected {DataTypeNames[i]}.");
+                throw new ArgumentException($"400 Invalid type for '{Format[i]}'. Expected {DataTypeNames[i]}.");
             }
         }
 

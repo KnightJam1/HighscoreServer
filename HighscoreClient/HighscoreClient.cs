@@ -94,7 +94,7 @@ public class HighscoreClient
         }
         catch (Exception ex)
         {
-            return new GetResult(statusCode: ex.Message.Split(" ")[0]);
+            return new GetResult(statusCode: "500");
         }
     }
 
@@ -102,7 +102,16 @@ public class HighscoreClient
     {
         string message = $"POST {leaderboardId} {string.Join(" ", entry)}";
         await SendEncryptedMessageAsync(message);
-        return new PostResult(isSuccessful:true, statusCode:"200");
+        string status = await ReceiveEncryptedResponseAsync();
+        if (status == "TooLow")
+        {
+            return new PostResult(isSuccessful:true, scoreTooLow:true, statusCode:"200"); // Success but the entry did not make it onto the leaderboard
+        }
+        else if (status == "200")
+        {
+            return new PostResult(isSuccessful:true, statusCode:"200"); // Success and the entry made it onto the leaderboard
+        }
+        return new PostResult(statusCode:status.Split(" ")[0]); // Faliure
     }
     
     private async Task SendMessageAsync(string message)
@@ -144,6 +153,21 @@ public class HighscoreClient
             throw new InvalidOperationException("The encrypted message is empty.");
         }
         return data;
+    }
+
+    private async Task<string> ReceiveEncryptedResponseAsync()
+    {
+        string encryptedMessage = await ReceiveMessageAsync();
+        byte[] encryptedData = Convert.FromBase64String(encryptedMessage);
+        byte[] decryptedData = _encryptionHandler.Decrypt(encryptedData, _encryptionKey);
+
+        string jsonData = Encoding.UTF8.GetString(decryptedData);
+        string message = JsonSerializer.Deserialize<string>(jsonData)!;
+        if (message == null)
+        {
+            throw new InvalidOperationException("The encrypted message is empty.");
+        }
+        return message;
     }
 
     private string WebStatusMap(WebSocketException ex)

@@ -21,10 +21,14 @@ class Program
         }
 
         // Can post an entry to an existing leaderboard.
-        PostResult postResult = await client.PostEntry("gamemode1", ["1004", "Josh", "2024-10-22"]);
+        PostResult postResult = await client.PostEntry("gamemode2", ["1004", "Josh", "2024-10-22"]);
         if (postResult.IsSuccessful)
         {
             Console.WriteLine("Successfully sent an entry.");
+        }
+        else
+        {
+            Console.WriteLine($"Failed to send an entry: {postResult.StatusCode}");
         }
         
         // Can get a segment of the leaderboard.
@@ -46,12 +50,9 @@ class Program
         }
 
         // Wait for the user. This is here to test for concurrent sessions.
-        Console.Write("Press any key to continue...");
+        Console.WriteLine("Press any key to continue...");
         Console.ReadKey();
-        
-        // Wait for the user. This is here to test for concurrent sessions.
-        Console.Write("Press any key to continue...");
-        Console.ReadKey();
+        Console.WriteLine();
         
         // Close session
         Console.WriteLine("About to close the connection.");

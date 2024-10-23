@@ -16,15 +16,31 @@ public class Game
         // else throw an exception.
     }
 
-    public bool AddEntry(string gameMode, string[] entry)
+    public AddEntryResult AddEntry(string gameMode, string[] entry)
     {
         if (Leaderboards.ContainsKey(gameMode))
         {
-            return Leaderboards[gameMode].AddEntry(entry);
+            try
+            {
+                bool success = Leaderboards[gameMode].AddEntry(entry);
+                if (success)
+                {
+                    return new AddEntryResult(isSuccessful: true, status:"200");
+                }
+                else
+                {
+                    return new AddEntryResult(status:"TooLow");
+                }
+            }
+            catch (Exception ex)
+            {
+                return new AddEntryResult(status:$"500 {ex.Message}");
+            }
         }
         else
         {
-            throw new Exception($"Leaderboard for game mode '{gameMode}' does not exist.");
+            //throw new Exception($"Leaderboard for game mode '{gameMode}' does not exist.");
+            return new AddEntryResult(status:"404 Leaderboard not found.");
         }
     }
 

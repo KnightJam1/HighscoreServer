@@ -248,8 +248,10 @@ namespace HighscoreServer
                     case "POST":
                     {
                         var parts = info[1].Split(' ', 2);
-                        _data.AddEntry(parts[0], parts[1].Split(" "));
+                        var result = _data.AddEntry(parts[0], parts[1].Split(" "));
                         Logger.Log("Added entry.");
+                        var responseString = JsonSerializer.Serialize(result.Status);
+                        await SendEncryptedMessageAsync(webSocket, responseString);
                         break;
                     }
                     default:
