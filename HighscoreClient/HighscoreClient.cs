@@ -30,7 +30,7 @@ public class HighscoreClient
         try
         {
             await _webSocket.ConnectAsync(new Uri(_serverUrl), CancellationToken.None);
-            Console.WriteLine("Session opened with server.");
+            //Console.WriteLine("Session opened with server.");
             _isConnected = true;
         }
         catch (WebSocketException ex)
@@ -49,7 +49,7 @@ public class HighscoreClient
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            //Console.WriteLine(ex.Message);
             return new SessionResult(statusCode: ex.Message.Split(" ")[0]);
         }
         // Console.WriteLine($"Encryption key received from server");
@@ -72,7 +72,7 @@ public class HighscoreClient
             }
             await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", CancellationToken.None);
             _webSocket.Dispose();
-            Console.WriteLine("Session closed with server.");
+            //Console.WriteLine("Session closed with server.");
             _isConnected = false;
         }
         catch (Exception ex)
@@ -83,19 +83,26 @@ public class HighscoreClient
         }
     }
 
-    public async Task<List<string[]>> GetLeaderboardScores(string leaderboardId, int position, int scoresBefore, int scoresAfter)
+    public async Task<GetResult> GetLeaderboardScores(string leaderboardId, int position, int scoresBefore, int scoresAfter)
     {
         string message = $"GET {leaderboardId} {position} {scoresBefore} {scoresAfter}";
-        var jsonMessage = JsonSerializer.Serialize(message);
         await SendEncryptedMessageAsync(message);
-        return await ReceiveEncryptedMessageAsync();
+        try
+        {
+            var scores = await ReceiveEncryptedMessageAsync();
+            return new GetResult(scores:scores, isSuccessful:true, statusCode:"200");
+        }
+        catch (Exception ex)
+        {
+            return new GetResult(statusCode: ex.Message.Split(" ")[0]);
+        }
     }
 
-    public async Task PostEntry(string leaderboardId, string[] entry)
+    public async Task<PostResult> PostEntry(string leaderboardId, string[] entry)
     {
         string message = $"POST {leaderboardId} {string.Join(" ", entry)}";
-        var jsonMessage = JsonSerializer.Serialize(message);
         await SendEncryptedMessageAsync(message);
+        return new PostResult(isSuccessful:true, statusCode:"200");
     }
     
     private async Task SendMessageAsync(string message)

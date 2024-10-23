@@ -21,15 +21,28 @@ class Program
         }
 
         // Can post an entry to an existing leaderboard.
-        await client.PostEntry("gamemode1", ["1004", "Josh", "2024-10-22"]);
+        PostResult postResult = await client.PostEntry("gamemode1", ["1004", "Josh", "2024-10-22"]);
+        if (postResult.IsSuccessful)
+        {
+            Console.WriteLine("Successfully sent an entry.");
+        }
         
         // Can get a segment of the leaderboard.
-        List<string[]> leaderboard = await client.GetLeaderboardScores("gamemode1", 7, 4, 5);
+        GetResult getResult = await client.GetLeaderboardScores("gamemode1", 7, 4, 5);
         
         // Display the list
-        for (int i = 0; i < leaderboard.Count; i++)
+        if (getResult.IsSuccessful)
         {
-            Console.WriteLine($"{leaderboard[i][0]}: {leaderboard[i][1]}");
+            List<string[]> leaderboard = getResult.Scores;
+            
+            for (int i = 0; i < leaderboard.Count; i++)
+            {
+                Console.WriteLine($"{leaderboard[i][0]}: {leaderboard[i][1]}");
+            }
+        }
+        else
+        {
+            Console.WriteLine($"Get leaderboard failed: {getResult.StatusCode}");
         }
 
         // Wait for the user. This is here to test for concurrent sessions.
