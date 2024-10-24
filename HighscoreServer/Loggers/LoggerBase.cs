@@ -15,7 +15,7 @@ public abstract class LoggerBase
     }
     protected readonly string[] SeverityEmojis = ["💬", "⚠", "🛑"];
     protected SeverityLevel CurrentSeverity;
-    public abstract void Log(string message, SeverityLevel severity);
+    public abstract void Log(string message, SeverityLevel severity = SeverityLevel.Info);
 
     public void SetSeverityLevel(SeverityLevel severity)
     {
