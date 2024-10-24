@@ -5,10 +5,6 @@ namespace HighscoreServer;
 
 static class Program
 {
-    // Unnecessary. Move to server.
-    // static readonly string DefaultDataDirectory = "SavedData";
-    // static readonly string DefaultFileName = "data";
-    
     // Necessary static property
     private static bool _shutdownRequested;
 
@@ -32,6 +28,7 @@ static class Program
         CommandProcessor.ExecuteCommand(context, "initialize");
 
         // Start the command handling loop
+        Console.WriteLine("Type in a command. Type 'help' for a list of commands.");
         while (true)
         {
             string command = Console.ReadLine() ?? "";
