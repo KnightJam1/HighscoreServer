@@ -22,7 +22,7 @@ namespace HighscoreServer
         private int _activeRequests;
         private Game _data;
         
-        static readonly IDataService DataService = new FileDataService("SavedData",".json");
+        static readonly IDataService DataService = new FileDataService("SavedData",".json", Logger);
         private const string DefaultDataDirectory = "SavedData";
         private const string DefaultFileName = "data";
 

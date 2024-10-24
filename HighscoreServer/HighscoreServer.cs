@@ -17,14 +17,14 @@ namespace HighscoreServer
         private readonly HttpListener _listener;
         private readonly SemaphoreSlim _semaphore;
         private readonly EncryptionHandler _encryptionHandler;
-        static readonly LoggerTerminal Logger = new LoggerTerminal();
+        static readonly LoggerFile Logger = new LoggerFile("Logs");
         
         private bool _isRunning;
         private int _activeRequests;
         private Game _data;
         
         // Change to allow user to specify their default directory.
-        static readonly IDataService DataService = new FileDataService("SavedData",".json");
+        static readonly IDataService DataService = new FileDataService("SavedData",".json", Logger);
         //private const string DefaultDataDirectory = "SavedData";
         private const string DefaultFileName = "data";
         

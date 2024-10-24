@@ -19,4 +19,7 @@ obj/
 *.plist
 
 # Ignore saved json files
-HighscoreListener/SavedData/*json
+HighscoreServer/SavedData/*.json
+
+# Ignore logs
+HighscoreServer/Logs/*.txt
