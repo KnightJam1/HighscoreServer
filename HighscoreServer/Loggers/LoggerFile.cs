@@ -12,6 +12,8 @@ public class LoggerFile : LoggerBase
     {
         _logFilePath = logFilePath;
         AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
+        AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
+        Console.CancelKeyPress += OnCancelKeyPress;
     }
     
     public override void Log(string message, SeverityLevel severity = SeverityLevel.Info)
@@ -20,10 +22,27 @@ public class LoggerFile : LoggerBase
     }
     private async void OnProcessExit(object? sender, EventArgs e)
     {
-        await SaveLogAsync();
+        await SaveLogAsync("Process exiting normally.");
     }
 
-    public async Task SaveLogAsync()
+    private async void OnUnhandledException(object? sender, UnhandledExceptionEventArgs e)
+    {
+        Log($"Unhandled exception: {e.ExceptionObject}");
+        await SaveLogAsync("Process terminated due to unhandled exception.");
+    }
+
+    private async void OnCancelKeyPress(object? sender, ConsoleCancelEventArgs e)
+    {
+        Log("Process terminated via Ctrl+C.");
+        await SaveLogAsync("Process terminated via Ctrl+C.");
+        e.Cancel = true; // Prevent the process from terminating immediately
+    }
+
+    /// <summary>
+    /// Save the 
+    /// </summary>
+    /// <param name="saveMessage"></param>
+    public async Task SaveLogAsync(string saveMessage = "Saved log to file.")
     {
         if (_isSaving) return;
 
@@ -36,6 +55,7 @@ public class LoggerFile : LoggerBase
                 {
                     await writer.WriteLineAsync(logMessage);
                 }
+                await writer.WriteLineAsync($"{DateTime.Now}: {saveMessage}");
             }
         }
         catch (Exception ex)
