@@ -22,15 +22,8 @@ public class Game
         {
             try
             {
-                bool success = Leaderboards[gameMode].AddEntry(entry);
-                if (success)
-                {
-                    return new AddEntryResult(isSuccessful: true, status:"200");
-                }
-                else
-                {
-                    return new AddEntryResult(status:"TooLow");
-                }
+                int position = Leaderboards[gameMode].AddEntry(entry);
+                return new AddEntryResult(isSuccessful: true, position: position, status:"200");
             }
             catch (Exception ex)
             {

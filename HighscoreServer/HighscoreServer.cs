@@ -250,7 +250,7 @@ namespace HighscoreServer
                         var parts = info[1].Split(' ', 2);
                         var result = _data.AddEntry(parts[0], parts[1].Split(" "));
                         Logger.Log("Added entry.");
-                        var responseString = JsonSerializer.Serialize(result.Status);
+                        var responseString = JsonSerializer.Serialize($"{result.IsSuccessful} {result.Position} {result.Status}");
                         await SendEncryptedMessageAsync(webSocket, responseString);
                         break;
                     }

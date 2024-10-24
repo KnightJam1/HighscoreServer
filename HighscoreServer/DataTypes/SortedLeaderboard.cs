@@ -22,7 +22,7 @@ public class SortedLeaderboard
         MaxEntries = maxEntries;
     }
 
-    public bool AddEntry(string[] entry)
+    public int AddEntry(string[] entry)
     {
         if (entry.Length != Format.Count)
         {
@@ -43,9 +43,13 @@ public class SortedLeaderboard
 
         if (Entries.Count > MaxEntries)
         {
-            Entries.RemoveAt(0); // Remove the lowest
+            Entries.RemoveAt(MaxEntries); // Remove the lowest
+            if (index == MaxEntries)
+            {
+                return -1;
+            }
         }
-        return true;
+        return index;
     }
 
     private bool ValidateType(string value, string typeName)

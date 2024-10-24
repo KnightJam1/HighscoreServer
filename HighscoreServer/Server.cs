@@ -147,24 +147,15 @@ namespace HighscoreServer
                         using var reader = new StreamReader(context.Request.InputStream);
                         var requestBody = await reader.ReadToEndAsync();
                         var entry = JsonSerializer.Deserialize<KeyValuePair<string, string[]>>(requestBody);
-
-                        try
-                        {
-                            _data.AddEntry(entry.Key, entry.Value);
-                            context.Response.StatusCode = (int)HttpStatusCode.OK;
-                            var response = JsonSerializer.Serialize(new { Message = "Entry added successfully." });
-                            byte[] buffer = System.Text.Encoding.UTF8.GetBytes(response);
-                            context.Response.ContentLength64 = buffer.Length;
-                            await context.Response.OutputStream.WriteAsync(buffer, 0, buffer.Length);
-                        }
-                        catch (Exception ex)
-                        {
-                            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                            var response = JsonSerializer.Serialize(new { Error = ex.Message });
-                            byte[] buffer = System.Text.Encoding.UTF8.GetBytes(response);
-                            context.Response.ContentLength64 = buffer.Length;
-                            await context.Response.OutputStream.WriteAsync(buffer, 0, buffer.Length);
-                        }
+                        
+                        // Construct a response to inform the client of a success.
+                        var result = _data.AddEntry(entry.Key, entry.Value);
+                        context.Response.StatusCode = (int)HttpStatusCode.OK;
+                        string response = JsonSerializer.Serialize($"{result.IsSuccessful} {result.Position} {result.Status}");
+                        
+                        byte[] buffer = System.Text.Encoding.UTF8.GetBytes(response);
+                        context.Response.ContentLength64 = buffer.Length;
+                        await context.Response.OutputStream.WriteAsync(buffer, 0, buffer.Length);
 
                         break;
                     }

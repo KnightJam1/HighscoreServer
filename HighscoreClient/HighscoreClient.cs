@@ -137,6 +137,7 @@ public class HighscoreClient
     /// <param name="entry">The entry to be added.</param>
     /// <returns>
     /// Returns a PostResult struct containing a bool for success, a bool to return if the entry qualified and a status code to identify problems.
+    /// If PostResult.Position is -1 then everything worked but the entry did not qualify to stay on the leaderboard.
     /// 200 - success
     /// 404 - could not find the specified leaderboard
     /// 500 - error
@@ -146,15 +147,8 @@ public class HighscoreClient
         string message = $"POST {leaderboardId} {string.Join(" ", entry)}";
         await SendEncryptedMessageAsync(message);
         string status = await ReceiveEncryptedResponseAsync();
-        if (status == "TooLow")
-        {
-            return new PostResult(isSuccessful:true, scoreTooLow:true, statusCode:"200"); // Success but the entry did not make it onto the leaderboard
-        }
-        else if (status == "200")
-        {
-            return new PostResult(isSuccessful:true, statusCode:"200"); // Success and the entry made it onto the leaderboard
-        }
-        return new PostResult(statusCode:status.Split(" ")[0]); // Faliure
+        var parts = status.Split(" ");
+        return new PostResult(isSuccessful: bool.Parse(parts[0]), position: int.Parse(parts[1]), statusCode: parts[2]);
     }
     
     private async Task SendMessageAsync(string message)
