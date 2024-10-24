@@ -5,15 +5,22 @@ namespace HighscoreServer.Loggers;
 public class LoggerFile : LoggerBase
 {
     private readonly ConcurrentQueue<string> _logQueue = new ConcurrentQueue<string>();
-    private readonly string _logFilePath;
+    private string _logFilePath = "";
     private bool _isSaving;
     
-    public LoggerFile(string logFilePath)
+    public LoggerFile(string logFileDirectory)
     {
-        _logFilePath = logFilePath;
+        Directory.CreateDirectory(logFileDirectory);
+        SetNewLogFilePath(logFileDirectory);
         AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
         AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
         Console.CancelKeyPress += OnCancelKeyPress;
+    }
+    
+    private void SetNewLogFilePath(string directory)
+    {
+        string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+        _logFilePath = Path.Combine(directory, $"log_{timestamp}.txt");
     }
     
     public override void Log(string message, SeverityLevel severity = SeverityLevel.Info)
