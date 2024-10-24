@@ -1,4 +1,4 @@
-using System.Diagnostics;
+
 
 namespace HighscoreServer.Commands;
 
@@ -61,7 +61,11 @@ public class CreateCommand : ICommand
 
         for (int i = 0; i < Convert.ToInt16(args[1]); i++)
         {
-            Console.WriteLine($"Enter type for item {i + 1} (string, int, datetime):");
+            if (i == 0)
+            {
+                Console.WriteLine($"Enter type for item 1 (int, string, datetime). This will be the value the highscores are ordered by.:");
+            }
+            Console.WriteLine($"Enter type for item {i + 1} (int, string, datetime):");
             string typeInput = Console.ReadLine() ?? "";
 
             switch (typeInput.ToLower())

@@ -24,13 +24,24 @@ public class HighscoreClient
         _isConnected = false;
     }
 
-    // Open a session with the server
+    /// <summary>
+    /// Open a session with the server.
+    /// </summary>
+    /// <returns>
+    /// Returns a SessionResult that says if the websocket successfully connected.
+    /// If the connection was not successful the SessionResult will have a status code to indicate what went wrong.
+    /// 200 - success
+    /// 400 - bad request
+    /// 403 - incorrect secret
+    /// 408 - request timeout
+    /// 426 - upgrade required
+    /// 500 - internal server error
+    /// </returns>
     public async Task<SessionResult> OpenSessionAsync()
     {
         try
         {
             await _webSocket.ConnectAsync(new Uri(_serverUrl), CancellationToken.None);
-            //Console.WriteLine("Session opened with server.");
             _isConnected = true;
         }
         catch (WebSocketException ex)
@@ -49,14 +60,23 @@ public class HighscoreClient
         }
         catch (Exception ex)
         {
-            //Console.WriteLine(ex.Message);
             return new SessionResult(statusCode: ex.Message.Split(" ")[0]);
         }
-        // Console.WriteLine($"Encryption key received from server");
         return new SessionResult(isSuccessful: true, statusCode: "200");
     }
 
-    public async Task CloseSessionAsync()
+    /// <summary>
+    /// Close the current session with the server.
+    /// </summary>
+    /// <returns>
+    /// Returns a SessionResult that says if the websocket successfully disconnected.
+    /// The SessionResult will have a status code to indicate how the session closed and if there was a problem.
+    /// 200 - Successful closure
+    /// 404 - No session was started, and thus cannot be closed.
+    /// 410 - Session already closed by  server.
+    /// 500 - Error with closure
+    /// </returns>
+    public async Task<SessionResult> CloseSessionAsync()
     {
         try
         {
@@ -64,25 +84,37 @@ public class HighscoreClient
             var timeoutTask = Task.Delay(100);
             if (await Task.WhenAny(getHandshake, timeoutTask) == getHandshake)
             {
-                throw new InvalidOperationException("The websocket is already closed.");
+                return new SessionResult(isSuccessful: true,statusCode: "410"); // Session already closed by server.
             }
             if (!_isConnected)
             {
-                throw new InvalidOperationException("The websocket is not connected.");
+                return new SessionResult(statusCode: "404"); // No started session.
             }
             await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", CancellationToken.None);
             _webSocket.Dispose();
-            //Console.WriteLine("Session closed with server.");
             _isConnected = false;
+            return new SessionResult(isSuccessful: true, statusCode: "200"); // Successful closure of session.
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
             _webSocket.Dispose();
             _isConnected = false;
+            return new SessionResult(isSuccessful: true, statusCode: "500"); // An error occured trying to close the session, but the session has been closed.
         }
     }
 
+    /// <summary>
+    /// Get a section from a leaderboard.
+    /// </summary>
+    /// <param name="leaderboardId">Name of the leaderboard being accessed.</param>
+    /// <param name="position">The position of the main entry to look at.</param>
+    /// <param name="scoresBefore">The number of positions before the entry that should be returned.</param>
+    /// <param name="scoresAfter">The number of positions after the entry that should be returned.</param>
+    /// <returns>
+    /// Returns a GetResult struct that holds the returned section of the leaderboard, a bool saying if the get was successful and a status code to identify problems.
+    /// 200 - successful get
+    /// 500 - error trying to get
+    /// </returns>
     public async Task<GetResult> GetLeaderboardScores(string leaderboardId, int position, int scoresBefore, int scoresAfter)
     {
         string message = $"GET {leaderboardId} {position} {scoresBefore} {scoresAfter}";
@@ -98,6 +130,17 @@ public class HighscoreClient
         }
     }
 
+    /// <summary>
+    /// Post an entry to the specified leaderboard.
+    /// </summary>
+    /// <param name="leaderboardId">The leaderboard the entry should be added to.</param>
+    /// <param name="entry">The entry to be added.</param>
+    /// <returns>
+    /// Returns a PostResult struct containing a bool for success, a bool to return if the entry qualified and a status code to identify problems.
+    /// 200 - success
+    /// 404 - could not find the specified leaderboard
+    /// 500 - error
+    /// </returns>
     public async Task<PostResult> PostEntry(string leaderboardId, string[] entry)
     {
         string message = $"POST {leaderboardId} {string.Join(" ", entry)}";

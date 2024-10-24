@@ -1,4 +1,6 @@
-﻿namespace HighscoreClient;
+﻿using System.Net;
+
+namespace HighscoreClient;
 
 class Program
 {
@@ -21,7 +23,7 @@ class Program
         }
 
         // Can post an entry to an existing leaderboard.
-        PostResult postResult = await client.PostEntry("gamemode2", ["1004", "Josh", "2024-10-22"]);
+        PostResult postResult = await client.PostEntry("gamemode1", ["8000", "Josh", "2024-10-22"]);
         if (postResult.IsSuccessful)
         {
             Console.WriteLine("Successfully sent an entry.");
@@ -56,6 +58,18 @@ class Program
         
         // Close session
         Console.WriteLine("About to close the connection.");
-        await client.CloseSessionAsync();
+        SessionResult closeResult = await client.CloseSessionAsync();
+        if (closeResult.IsSuccessful)
+        {
+            Console.WriteLine("Session closed successfully.");
+            if (closeResult.StatusCode == "500")
+            {
+                Console.WriteLine("There was a problem somewhere, but the session closed anyway.");
+            }
+        }
+        else
+        {
+            Console.WriteLine($"Session failed: {closeResult.StatusCode}");
+        }
     }
 }

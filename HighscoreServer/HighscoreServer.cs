@@ -229,7 +229,7 @@ namespace HighscoreServer
                 //string serializedInfo = requestContent.Substring(1, requestContent.Length - 2);
                 //Logger.Log($"Received request: {serializedInfo}");
                 
-                var info = JsonSerializer.Deserialize<string>(requestContent).Split(" ", 2);
+                var info = JsonSerializer.Deserialize<string>(requestContent)!.Split(" ", 2);
                 if (info == null)
                 {
                     throw new Exception("Invalid request.");

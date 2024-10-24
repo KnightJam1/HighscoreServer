@@ -54,7 +54,7 @@ namespace HighscoreServer.DataServices
             }
 
             File.WriteAllText(fileLocation, JsonSerializer.Serialize(data)); //Or use serializer.Serialize(data) if one is provided
-            Console.WriteLine($"Data saved as {fileName}{_fileExtension}.");
+            _logger.Log($"Data saved as {fileName}{_fileExtension}.");
         }
 
         /// <summary>
@@ -79,7 +79,7 @@ namespace HighscoreServer.DataServices
             else
             {
                 Game loadedData = JsonSerializer.Deserialize<Game>(File.ReadAllText(fileLocation)) ?? new Game();
-                Console.WriteLine($"File {fileName}{_fileExtension} was loaded.");
+                _logger.Log($"File {fileName}{_fileExtension} was loaded.");
 
                 return loadedData;
             }
