@@ -4,7 +4,7 @@ A fast, lightweight server written in C# that lets you host leaderboards. Intend
 
 ## Status
 
-**Work in Progress**: This project is actively being developed. Contributions and feedback are welcome!
+**Work in Progress Alpha**: This project is in alpha and should only be used for testing purposes while it is still being developed. Contributions and feedback are welcome!
 
 ## Features
 
