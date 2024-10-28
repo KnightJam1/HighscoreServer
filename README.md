@@ -1,6 +1,10 @@
 # Highscore Server
 
-A fast, lightweight server written in C# that lets you host leaderboards for any software. Clients can add entries to the leaderboards or retrieve sections of the leaderboard.
+A fast, lightweight server written in C# that lets you host leaderboards. Intended for use in Unity or other C# projects. Clients can add entries to the leaderboards or retrieve sections of the leaderboard.
+
+## Status
+
+**Work in Progress**: This project is actively being developed. Contributions and feedback are welcome!
 
 ## Features
 
@@ -24,7 +28,7 @@ A fast, lightweight server written in C# that lets you host leaderboards for any
    
 2. Navigate to the directory:
    ```sh
-   dotnet run
+   cd HighscoreProject
    
 3. Build the project
    ```sh
@@ -34,15 +38,13 @@ A fast, lightweight server written in C# that lets you host leaderboards for any
 
 1. Start the server:
    ```sh
+   cd HighscoreServer
    dotnet run
    
-2. Server will start running on http://localhost:8080 as https and url support has not been implemented.
+2. Server will start running on http://localhost:8080 as https and url support has not been implemented. Both the client and server have a secret int, found in HighscoreServer.cs and HighscoreClient.cs, make sure to change this for your project and have them match.
+3. In your project, add the client directory to your .csproj file and include HighscoreClient in any code where you need to use it.
 
-### Server usage
-
-### Client usage
-
-### Contributing
+## Contributing
 Contributions are welcome! Please follow these steps:
 
 1. Fork the repository.
@@ -57,8 +59,8 @@ Contributions are welcome! Please follow these steps:
 
 6. Open a pull request.
 
-### Licence
+## Licence
 This project is licensed under the MIT License. See the [LICENSE](LICENCE) file for details.
 
-### Contact
+## Contact
 If you have any questions or feedback, please open an issue.
