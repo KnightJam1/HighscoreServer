@@ -20,13 +20,13 @@ public class CreateCommand : ICommand
             throw new ArgumentException($"Invalid number of arguments. Expected {NumArgs} but got {args.Length}.");
         }
         
-        // Check to see if args[0] is valid.
+        // Check to see if args[0], the name, is valid.
         if (args[0] == "")
         {
             throw new ArgumentException("You must provide a name!");
         }
         
-        // Check to see if args[1] is valid.
+        // Check to see if args[1], the number of items in an entry, is valid.
         try
         {
             int.Parse(args[1]);
@@ -41,7 +41,7 @@ public class CreateCommand : ICommand
             throw new ArgumentException("Cannot have fewer than one items in an entry.");
         }
         
-        // Check to see if args[2] is valid.
+        // Check to see if args[2], the upper limit of entries, is valid.
         try
         {
             int.Parse(args[2]);

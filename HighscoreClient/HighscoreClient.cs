@@ -95,7 +95,7 @@ public class HighscoreClient
             _isConnected = false;
             return new SessionResult(isSuccessful: true, statusCode: "200"); // Successful closure of session.
         }
-        catch (Exception ex)
+        catch
         {
             _webSocket.Dispose();
             _isConnected = false;
@@ -124,7 +124,7 @@ public class HighscoreClient
             var scores = await ReceiveEncryptedMessageAsync();
             return new GetResult(scores:scores, isSuccessful:true, statusCode:"200");
         }
-        catch (Exception ex)
+        catch
         {
             return new GetResult(statusCode: "500");
         }
