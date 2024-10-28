@@ -8,10 +8,10 @@ namespace HighscoreServer.Commands;
 public class CreateCommand : ICommand
 {
     public string Name => "create";
-    public int NumArgs => 3;
-    public string HelpText => "Create a new leaderboard. Requires name, items in entry, max entries. E.g. create gamemode1 3 1000.";
+    public int NumArgs => 4;
+    public string HelpText => "Create a new leaderboard. Every leaderboad has an int score and string name. Requires a name, a number of extra details and a maximum number entries. E.g. create gamemode1 5 3 1000.";
     
-    /// <param name="args">Arguments should come in the form name, items in entry, max entries. E.g. 'gamemode1 3 1000'</param>
+    /// <param name="args">Arguments should come in the form name, max username length, extra details, max entries. E.g. 'gamemode1 5 3 1000'</param>
     public void Execute(CommandContext context, string[] args)
     {
         // Check for a valid number of arguments.
@@ -20,7 +20,7 @@ public class CreateCommand : ICommand
             throw new ArgumentException($"Invalid number of arguments. Expected {NumArgs} but got {args.Length}.");
         }
         
-        // Check to see if args[0], the name, is valid.
+        // Check to see if args[0], the leaderboard name, is valid.
         if (args[0] == "")
         {
             throw new ArgumentException("You must provide a name!");
@@ -34,14 +34,14 @@ public class CreateCommand : ICommand
         catch (Exception ex)
         {
             Console.WriteLine(ex);
-            throw new ArgumentException("Number of items for an entry must be an integer.");
+            throw new ArgumentException("Username length must be an integer.");
         }
         if (int.Parse(args[1]) < 1)
         {
-            throw new ArgumentException("Cannot have fewer than one items in an entry.");
+            throw new ArgumentException("Cannot have a username length less than 1.");
         }
         
-        // Check to see if args[2], the upper limit of entries, is valid.
+        // Check to see if args[1], the number of items in an entry, is valid.
         try
         {
             int.Parse(args[2]);
@@ -49,21 +49,37 @@ public class CreateCommand : ICommand
         catch (Exception ex)
         {
             Console.WriteLine(ex);
-            throw new ArgumentException("Maximum number of entries must be an integer.");
+            throw new ArgumentException("Number of items for an entry must be an integer.");
         }
         if (int.Parse(args[2]) < 1)
+        {
+            throw new ArgumentException("Cannot have fewer than one items in an entry.");
+        }
+        
+        // Check to see if args[2], the upper limit of entries, is valid.
+        try
+        {
+            int.Parse(args[3]);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            throw new ArgumentException("Maximum number of entries must be an integer.");
+        }
+        if (int.Parse(args[3]) < 1)
         {
             throw new ArgumentException("Cannot have fewer than one entry in the leaderboard.");
         }
 
-        List<string> format = new List<string>();
-        List<string> dataTypeNames = new List<string>();
+        // format and dataTypeNames must include the pre set score and username items in an entry.
+        List<string> format = ["score", "username"];
+        List<string> dataTypeNames = ["int", "string"];
 
         for (int i = 0; i < Convert.ToInt16(args[1]); i++)
         {
             if (i == 0)
             {
-                Console.WriteLine($"Enter type for item 1 (int, string, datetime). This will be the value the highscores are ordered by.:");
+                Console.WriteLine($"Enter type for item 1 (int, string, datetime):");
             }
             Console.WriteLine($"Enter type for item {i + 1} (int, string, datetime):");
             string typeInput = Console.ReadLine() ?? "";
