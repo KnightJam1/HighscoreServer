@@ -42,9 +42,9 @@ namespace HighscoreServer
             _encryptionHandler = new EncryptionHandler();   
         }
 
-        public void AddLeaderboard(string name, List<string> format, List<string> dataTypeNames, int maxEntries)
+        public void AddLeaderboard(string name, List<string> format, List<string> dataTypeNames, int maxEntries, int usernameLength)
         {
-            _data.AddLeaderboard(name, format, dataTypeNames, maxEntries);
+            _data.AddLeaderboard(name, format, dataTypeNames, maxEntries, usernameLength);
         }
         
         public void InitialLoad() // Move functionality to LoadData? Pass an isInitial flag maybe

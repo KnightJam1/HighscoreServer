@@ -101,7 +101,7 @@ public class CreateCommand : ICommand
             format.Add(nameInput);
         }
 
-        context.Server.AddLeaderboard(args[0], format, dataTypeNames,int.Parse(args[2]));
+        context.Server.AddLeaderboard(args[0], format, dataTypeNames,int.Parse(args[3]),int.Parse(args[1]));
         Console.WriteLine($"Leaderboard '{args[0]}' created with format: {string.Join(", ", format)}");
     }
 }

@@ -14,17 +14,24 @@ public class SortedLeaderboard
     public List<string> Format { get; private set; }
     public List<string> DataTypeNames { get; set; }
     public int MaxEntries { get; set; }
+    public int UsernameLength { get; set; }
 
-    public SortedLeaderboard(List<string> format, List<string> dataTypeNames, int maxEntries)
+    public SortedLeaderboard(List<string> format, List<string> dataTypeNames, int maxEntries, int usernameLength)
     {
         Format = format;
         DataTypeNames = dataTypeNames;
         MaxEntries = maxEntries;
+        UsernameLength = usernameLength;
     }
 
     public int AddEntry(string[] entry)
     {
         if (entry.Length != Format.Count)
+        {
+            throw new ArgumentException($"400 Invalid entry format. Expected {Format.Count} values: {string.Join(", ", Format)}");
+        }
+        
+        if (entry[1].Length != UsernameLength)
         {
             throw new ArgumentException($"400 Invalid entry format. Expected {Format.Count} values: {string.Join(", ", Format)}");
         }
